@@ -1,0 +1,9 @@
+[
+  {
+    "id": "poster",
+    "label": "海报生成",
+    "entry": "/static/skills/poster/index.js",
+    "manifest": "/static/skills/poster/manifest.json",
+    "artifactTypes": ["png", "pdf"]
+  }
+]

@@ -1,0 +1,94 @@
+{
+  "schema_version": 2,
+  "scene": "S4",
+  "title": "IEG游戏嘉年华 2026",
+  "canvas": {
+    "width": 1440,
+    "palette_strategy": "named:carnival",
+    "bg_image_path": "assets/uploads/carnival-2026/A_wide_cinematic_game_carnival_2026-05-29T02-38-23.png",
+    "bg_image_fit": "width",
+    "bg_image_bottom_fade": 220,
+    "bg_image_chroma_key": false,
+    "glow": false
+  },
+  "sections": [
+    {
+      "type": "top_logo_bar",
+      "logos": [
+        "assets/logos/tencent-ieg-horizontal-white.png"
+      ],
+      "logo_heights": [44],
+      "gap": 60,
+      "pad_top": 24,
+      "pad_bottom": 20,
+      "align": "center"
+    },
+    {
+      "type": "hero_strip",
+      "height": 810,
+      "height_strict": true,
+      "tight_bottom": true,
+      "title_card": {
+        "style": "ai_wordart",
+        "image": "assets/uploads/carnival-2026/Chinese_game_title_art_text____2026-05-29T02-39-37.png",
+        "offset_from_bottom": 565,
+        "safe_zone": "auto",
+        "chroma_key": true,
+        "chroma_bg_kind": "dark",
+        "key_lightness": 35
+      }
+    },
+    {
+      "type": "subtitle_text",
+      "text": "玩转夏日，一起燃！",
+      "font_size": 52,
+      "pad_top": 12,
+      "pad_bottom": 16
+    },
+    {
+      "type": "section_title_bar",
+      "style": "plain",
+      "text": "活动介绍"
+    },
+    {
+      "type": "lead_paragraph",
+      "text": "IEG游戏嘉年华是腾讯互动娱乐事业群一年一度最具活力的文化盛典！集游戏体验、才艺展示、团队竞技、美食狂欢于一体，与全体 IEG 小伙伴共同庆祝属于我们的节日！",
+      "panel_style": "frosted"
+    },
+    {
+      "type": "section_title_bar",
+      "style": "plain",
+      "text": "活动亮点"
+    },
+    {
+      "type": "notice_box",
+      "bullets": [
+        "🎮 游戏区：多款独家内部游戏体验，还有神秘新游抢先试玩",
+        "🎤 才艺秀：员工才艺大赛，唱跳说唱样样都行",
+        "🏆 团队竞技：部门战队 PK 赛，荣耀与奖品双丰收",
+        "🍔 美食狂欢：来自各地的特色小吃，吃货们的天堂",
+        "🎁 大奖抽取：iPhone、Switch、旅游大礼包等丰厚礼品等你拿"
+      ]
+    },
+    {
+      "type": "section_title_bar",
+      "style": "plain",
+      "text": "活动信息"
+    },
+    {
+      "type": "info_card",
+      "items": [
+        {"label": "时间", "value": "2026年7月18日（周六）10:00 - 20:00"},
+        {"label": "地点", "value": "腾讯滨海大厦·广场及多功能厅"},
+        {"label": "对象", "value": "全体 IEG 员工及直系家属"},
+        {"label": "报名", "value": "扫码报名或在 OA 系统填写参与人数"}
+      ]
+    },
+    {
+      "type": "cta_button",
+      "text": "立即报名",
+      "pre_lines": ["名额有限，先到先得！"],
+      "post_lines": ["报名截止：2026年7月10日"]
+    }
+  ]
+}

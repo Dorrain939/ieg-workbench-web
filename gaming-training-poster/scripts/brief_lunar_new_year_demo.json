@@ -1,0 +1,208 @@
+{
+  "_doc": "v0.9.5 IEG 新春培训通知海报。在 v0.9.4 五条铁律基础上叠加 4 条新规：",
+  "_doc_rules": [
+    "1. 噪点彻底删除（grain=false）—— 用户反馈 BILINEAR 后仍有砂纸感",
+    "2. 装饰图主视觉高度砍半（bg_image_max_height=425）",
+    "3. logo 不再画单色挡条，直接坐在底色渐变上；logo 高度 72→96",
+    "4. 配色暂用中性占位，等用户上传新配色后替换"
+  ],
+  "schema_version": 2,
+  "scene": "S4",
+  "canvas": {
+    "width": 1200,
+    "format": "long-poster",
+    "bg_strategy": "gradient-2",
+    "bg_colors": [
+      "#FFF8EE",
+      "#FFE4B8"
+    ],
+    "glow": false,
+    "pattern": "none",
+    "grain": false,
+    "grain_strength": 0,
+    "palette_strategy": "named:festival_red",
+    "bg_image_path": "assets/uploads/lunar-new-year-2026/hero_kv_redpacket.png",
+    "bg_image_fit": "width",
+    "bg_image_max_height": 520,
+    "bg_image_height": 520,
+    "bg_image_crop_top": 0.0,
+    "bg_image_blend_h": 200,
+    "bg_image_tint": null,
+    "bg_image_tint_alpha": 0,
+    "bg_image_top_fade": 0,
+    "bg_image_bottom_fade": 80,
+    "bg_image_chroma_key": true,
+    "bg_image_chroma_bg_kind": "dark",
+    "bg_image_chroma_dark_max": 110,
+    "bg_image_chroma_sat_max": 28,
+    "bg_image_chroma_softness": 22
+  },
+  "decoration_family": "ceremony-gold",
+  "seed": 26,
+  "logo_position": "top",
+  "logo_align": "center",
+  "logo_height": 96,
+  "logos": [
+    "assets/ieg_hr_color.png",
+    "assets/tencent_academy_color.png"
+  ],
+  "sections": [
+    {
+      "type": "hero_strip",
+      "height": 800,
+      "logo_slot": null,
+      "tight_bottom": true,
+      "hero_mascot": {
+        "image": "assets/uploads/lunar-new-year-2026/mascot_redpacket_penguin.png",
+        "side": "right",
+        "height_ratio": 0.62,
+        "offset_y": -30,
+        "opacity": 1.0
+      },
+      "title_card": {
+        "style": "ai_wordart",
+        "image": "assets/uploads/lunar-new-year-2026/wordart_xinchunqihang.png",
+        "lines": [
+          "新春启航"
+        ],
+        "subtitle": "IEG 2026 新春培训计划 · 龙年开训",
+        "width_ratio": 0.66,
+        "offset_from_bottom": 60,
+        "safe_zone": "bottom",
+        "chroma_key": true,
+        "chroma_bg_kind": "dark",
+        "key_lightness": 40,
+        "key_saturation": 80,
+        "key_softness": 30,
+        "edge_clean": true,
+        "shadow": {
+          "offset": [
+            0,
+            6
+          ],
+          "blur": 10,
+          "alpha": 55,
+          "color": [
+            124,
+            45,
+            18
+          ]
+        }
+      }
+    },
+    {
+      "type": "section_title_bar",
+      "style": "numbered",
+      "index": 1,
+      "text": "项目背景",
+      "accent_color": "#B91C1C"
+    },
+    {
+      "type": "lead_paragraph",
+      "panel_style": "frosted",
+      "text": "辞旧迎新，万象启程。IEG 企业大学谨在此向各位同事拜个早年，并为大家备好了 2026 新春培训『红包』——围绕『管理跃迁 / 业务复盘 / 心法传承』三条主线，邀请你和你的团队一起，把开年第一步走得更稳、更准、更燃。"
+    },
+    {
+      "type": "section_title_bar",
+      "style": "numbered",
+      "index": 2,
+      "text": "你将获得",
+      "accent_color": "#B91C1C"
+    },
+    {
+      "type": "bullet_points_block",
+      "number_style": "circle",
+      "bullets": [
+        "三场封闭式工作坊：管理跃迁 / 业务复盘 / 文化心法，任选其一深度沉浸",
+        "一份针对自己团队的『年度作战地图 v2026』，由 IEG 导师 1v1 评审过",
+        "与 12 位 IEG 资深业务负责人 + 3 位行业外部教练的长期人脉连接",
+        "结业即解锁的 IEG 学习平台『新春礼包』：12 节专家直播 + 3 本年度精选书单"
+      ]
+    },
+    {
+      "type": "section_title_bar",
+      "style": "numbered",
+      "index": 3,
+      "text": "课程安排",
+      "accent_color": "#B91C1C"
+    },
+    {
+      "type": "meta_row",
+      "items": [
+        {
+          "label": "面向人群",
+          "value": "IEG 总监及以上 / 核心 TL"
+        },
+        {
+          "label": "学习方式",
+          "value": "线下脱产 2 天 + 线上跟练"
+        },
+        {
+          "label": "学习收益",
+          "value": "1 份作战地图 + 导师 1v1"
+        }
+      ]
+    },
+    {
+      "type": "data_table",
+      "headers": [
+        "时间",
+        "主题",
+        "形式",
+        "产出"
+      ],
+      "rows": [
+        [
+          "1.20 周二 14:00",
+          "管理跃迁开篇课",
+          "线下大讲堂",
+          "管理者画像自评"
+        ],
+        [
+          "1.22 周四 10:00",
+          "业务复盘工作坊",
+          "线上 + 线下",
+          "团队 Q1 复盘报告"
+        ],
+        [
+          "1.24 周六 14:00",
+          "心法传承共创",
+          "线下闭门",
+          "协作心法卡 ×3"
+        ]
+      ],
+      "style": "soft",
+      "accent_color": "#B91C1C"
+    },
+    {
+      "type": "notice_box",
+      "inline": true,
+      "accent_color": "#DC2626",
+      "bullets": [
+        "全程脱产参与，三场任选一场缺勤即取消结业资格",
+        "提前与所在 BU 知会工作交接，开训前 3 天关闭微信群消息免打扰",
+        "课程涉及业务案例，作品与课件请勿外传，结业后 IEG 学习平台留存"
+      ]
+    },
+    {
+      "type": "cta_button",
+      "text": "立即报名",
+      "pre_lines": [
+        "截止时间：2026 年 2 月 5 日 23:59",
+        "名额：每场限 30 人，按报名时间 + BU 推荐顺序录取"
+      ],
+      "post_lines": [
+        "开训地点：IEG 滨海大厦 28F 共创空间",
+        "海报发布后 HR 将在此处挂上报名链接"
+      ]
+    },
+    {
+      "type": "contact_inline",
+      "text": "联系人：dorrainzeng（曾子河）",
+      "mode": "text"
+    }
+  ],
+  "decorations": {
+    "density": "none"
+  }
+}

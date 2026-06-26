@@ -1,0 +1,196 @@
+{
+  "scene": "S2",
+  "logo_position": "none",
+  "canvas": {
+    "width": 1440,
+    "bg_colors": ["#1E1B4B", "#0B1020"],
+    "bg_image_path": "/Users/dorrain/.codebuddy/skills/gaming-training-poster/assets/uploads/tech-summit-2026/hero_bg.png",
+    "bg_image_fit": "width",
+    "bg_image_bottom_fade_ratio": 0.35,
+    "palette_strategy": "named:deep_space",
+    "pattern": "none",
+    "glow": false
+  },
+  "decorations": {
+    "density": "none"
+  },
+  "background_decorations": {
+    "seed": 42,
+    "exclude_top": 1500,
+    "exclude_bottom": 200,
+    "types": [
+      {"path": "/Users/dorrain/.codebuddy/skills/gaming-training-poster/assets/uploads/tech-summit-2026/deco_star_dim.png",
+       "size": [40, 100], "count": 28, "alpha": 0.55, "rotate": true, "blur": 0}
+    ]
+  },
+  "sections": [
+    {
+      "type": "top_logo_bar",
+      "logos": [
+        "/Users/dorrain/.codebuddy/skills/gaming-training-poster/assets/uploads/tech-summit-2026/logo_tencent_recruit.png",
+        "/Users/dorrain/.codebuddy/skills/gaming-training-poster/assets/uploads/tech-summit-2026/logo_ieg.png",
+        "/Users/dorrain/.codebuddy/skills/gaming-training-poster/assets/uploads/tech-summit-2026/logo_ieg_talent.png",
+        "/Users/dorrain/.codebuddy/skills/gaming-training-poster/assets/uploads/tech-summit-2026/logo_s3.png"
+      ],
+      "logo_heights": [44, 44, 44, 44],
+      "gap": 80,
+      "pad_top": 22,
+      "pad_bottom": 22,
+      "align": "center"
+    },
+    {
+      "type": "hero_strip",
+      "tight_bottom": true,
+      "title_card": {
+        "style": "ai_wordart",
+        "image": "/Users/dorrain/.codebuddy/skills/gaming-training-poster/assets/uploads/tech-summit-2026/wordart_chroma.png",
+        "chroma_key": false,
+        "shadow": false,
+        "width_ratio": 0.86,
+        "offset_from_bottom": 320,
+        "safe_zone": "auto"
+      }
+    },
+    {
+      "type": "subtitle_text",
+      "text": "解锁前沿，共赴星海！",
+      "font_size": 96,
+      "offset_x": 0,
+      "pad_top": 0,
+      "pad_bottom": 0
+    },
+    {
+      "type": "section_title_bar",
+      "style": "plain",
+      "text": "活动介绍"
+    },
+    {
+      "type": "lead_paragraph",
+      "panel_style": "asset_frame",
+      "asset_frame_path": "/Users/dorrain/.codebuddy/skills/gaming-training-poster/assets/uploads/tech-summit-2026/info_frame.png",
+      "corner": 16,
+      "pad": 40,
+      "text_color": "#F1F5F9",
+      "font_size": 28,
+      "text": "腾讯游戏IEG技术分享周是一年一度面向全体技术同学的旗舰知识盛会，由 IEG 技术委员会与各工作室技术专家联合发起，覆盖引擎渲染、AI 工程化、高并发架构、性能优化、前沿探索五大方向，以「专家 KEYNOTE + 实战工作坊 + 闭门圆桌」的形式，沉淀团队技术资产、激发跨业务协作。"
+    },
+    {
+      "type": "section_title_bar",
+      "style": "plain",
+      "text": "开幕式"
+    },
+    {
+      "type": "image_block",
+      "image_path": "/Users/dorrain/.codebuddy/skills/gaming-training-poster/assets/uploads/tech-summit-2026/info_frame.png",
+      "width_ratio": 1.0,
+      "align": "center",
+      "pad_top": 8,
+      "pad_bottom": 8
+    },
+    {
+      "type": "data_table",
+      "headers": ["时间", "环节"],
+      "align": ["center", "center"],
+      "col_weights": [1.0, 1.5],
+      "accent_color": "#C9A961",
+      "header_color": "#FFFFFF",
+      "header_font_size": 34,
+      "font_size": 32,
+      "rows": [
+        ["10:00 - 10:15", "开幕致辞"],
+        ["10:15 - 10:45", "技术战略发布"],
+        ["10:45 - 11:30", "首场 KEYNOTE"],
+        ["11:30 - 12:00", "互动答疑 & 茶歇"]
+      ]
+    },
+    {
+      "type": "section_title_bar",
+      "style": "plain",
+      "text": "周期与议程"
+    },
+    {
+      "type": "lead_paragraph",
+      "panel_style": "none",
+      "font_role": "display",
+      "pad": 20,
+      "line_height": 60,
+      "text_color": "#FFFFFF",
+      "font_size": 34,
+      "text": "「IEG 技术分享周 2026」举办周期\n\n· 6月15日 - 6月19日　主会场连续 5 天，深圳滨海大厦 28F 报告厅\n· 全程线下 + 企微直播双通道，可回看 30 天\n· 工作坊与圆桌闭门场需要提前报名，名额有限"
+    },
+    {
+      "type": "image_block",
+      "image_path": "/Users/dorrain/.codebuddy/skills/gaming-training-poster/assets/uploads/tech-summit-2026/agenda_table.png",
+      "width_ratio": 1.0,
+      "align": "center",
+      "pad_top": 0,
+      "pad_bottom": 24,
+      "corner_radius": 16
+    },
+    {
+      "type": "section_title_bar",
+      "style": "plain",
+      "text": "技术委员会"
+    },
+    {
+      "type": "faculty_grid",
+      "layout": "grid",
+      "cols": 5,
+      "avatar_shape": "circle",
+      "avatar_size": 180,
+      "ring_color": "#C9A961",
+      "ring_width": 6,
+      "gap_x": 24,
+      "gap_y": 40,
+      "pad_top": 16,
+      "pad_bottom": 16,
+      "panel_style": "asset_frame",
+      "asset_frame_path": "/Users/dorrain/.codebuddy/skills/gaming-training-poster/assets/uploads/tech-summit-2026/info_frame.png",
+      "frame_inset": 32,
+      "name_color": "#FFFFFF",
+      "title_color": "#FFFFFF",
+      "name_font_size": 26,
+      "title_font_size": 20,
+      "title_font_role": "display",
+      "max_title_lines": 4,
+      "members": [
+        {"avatar": "/Users/dorrain/.codebuddy/skills/gaming-training-poster/assets/uploads/tech-summit-2026/instructor_01_lionelzheng.png", "name": "lionelzheng（郑棋文）", "title": "量子工作室技术总监"},
+        {"avatar": "/Users/dorrain/.codebuddy/skills/gaming-training-poster/assets/uploads/tech-summit-2026/instructor_02_macma.png", "name": "macma（马超）", "title": "光子引擎专家组组长"},
+        {"avatar": "/Users/dorrain/.codebuddy/skills/gaming-training-poster/assets/uploads/tech-summit-2026/instructor_03_samhu.png", "name": "samhu（胡振中）", "title": "光子AI Lab 负责人"},
+        {"avatar": "/Users/dorrain/.codebuddy/skills/gaming-training-poster/assets/uploads/tech-summit-2026/instructor_04_axue.png", "name": "axue（薛竺）", "title": "魔术师工作室架构师"},
+        {"avatar": "/Users/dorrain/.codebuddy/skills/gaming-training-poster/assets/uploads/tech-summit-2026/instructor_05_pamliang.png", "name": "pamliang（梁学鹏）", "title": "魔方性能优化专家"},
+        {"avatar": "/Users/dorrain/.codebuddy/skills/gaming-training-poster/assets/uploads/tech-summit-2026/instructor_06_zlzhengliu.png", "name": "zlzhengliu（刘政）", "title": "魔方后端架构组长"},
+        {"avatar": "/Users/dorrain/.codebuddy/skills/gaming-training-poster/assets/uploads/tech-summit-2026/instructor_07_dannyliu.png", "name": "dannyliu（刘子扬）", "title": "北极光 Europa 引擎 Lead"},
+        {"avatar": "/Users/dorrain/.codebuddy/skills/gaming-training-poster/assets/uploads/tech-summit-2026/instructor_08_bieberdu.png", "name": "bieberdu（杜宝春）", "title": "天美 J3 客户端架构师"},
+        {"avatar": "/Users/dorrain/.codebuddy/skills/gaming-training-poster/assets/uploads/tech-summit-2026/instructor_09_alickxu.png", "name": "alickxu（许凯强）", "title": "天美 J3 渲染专家"},
+        {"avatar": "/Users/dorrain/.codebuddy/skills/gaming-training-poster/assets/uploads/tech-summit-2026/instructor_10_sirujiang.png", "name": "sirujiang（蒋思茹）", "title": "天美 L1 王者技术指导"}
+      ]
+    },
+    {
+      "type": "section_title_bar",
+      "style": "plain",
+      "text": "参会须知"
+    },
+    {
+      "type": "notice_box",
+      "accent_color": "#C9A961",
+      "font_size": 26,
+      "bullets": [
+        "全员开放：IEG 全体技术同学均可报名，主会场座位先到先得，建议提前 15 分钟入场。",
+        {"text": "工作坊与闭门圆桌名额有限，需提前在「技术分享周」企微小程序报名，开场前 24 小时锁定名单。", "highlight": true, "highlight_color": "#FFD27A"},
+        "可申请技术会议假，请提前 3 天走 OA 流程并抄送直接上级，由各 BU 技术线统一统筹。",
+        "全程禁止外发未公开的技术资料，PPT 与录像将统一存档于内部知识库，按权限申请查阅。"
+      ]
+    },
+    {
+      "type": "section_title_bar",
+      "style": "plain",
+      "text": "联系我们"
+    },
+    {
+      "type": "contact_inline",
+      "font_size": 26,
+      "text": "组委会联系人：techsummit（技术委员会秘书处）、v_summithr（活动总协调）；\n议题合作 & 嘉宾邀请请联系 keynoteliu（刘组委）或 agendazhao（赵议程）。"
+    }
+  ]
+}

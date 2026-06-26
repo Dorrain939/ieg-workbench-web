@@ -1,0 +1,167 @@
+{
+  "_doc": "v0.9 项目通知邮件海报示范 brief —— 按 SKILL.md 的 10 模块结构挑模块拼装。",
+  "_doc_modules_used": [
+    "top_logo (white-horizontal)",
+    "0 bg (gradient-2 紫蓝)",
+    "1 hero_strip + ai_wordart",
+    "2+3 section_title_bar(numbered) + lead_paragraph",
+    "2+4 section_title_bar(numbered) + info_card(bullets)",
+    "2+5 section_title_bar(numbered) + curriculum_timeline + meta_row",
+    "2+6 section_title_bar(numbered) + faculty_grid(compact, 4 人)",
+    "7 notice_box(inline)",
+    "8 info_card_with_qr",
+    "9 contact_inline",
+    "no bottom_logo (top 已用)"
+  ],
+
+  "schema_version": 2,
+  "scene": "S1",
+  "canvas": {
+    "width": 1200,
+    "format": "long-poster",
+    "bg_strategy": "gradient-2",
+    "bg_colors": ["#241B5C", "#0F0A2E"],
+    "glow": true,
+    "glow_top_color": "#FBBF24",
+    "glow_bottom_color": "#7C4DFF",
+    "pattern": "grid",
+    "grain": true,
+    "palette_strategy": "named:deep_space"
+  },
+  "decoration_family": "semi-3d-collage",
+  "seed": 17,
+
+  "logo_position": "top",
+  "logo_variant": "white",
+  "brand": {
+    "logos": {
+      "horizontal": "assets/logos/tencent-ieg-horizontal-white.png",
+      "emblem": "assets/logos/tencent-ieg-emblem-white.png",
+      "wordmark": "assets/logos/tencent-ieg-wordmark-white.png"
+    }
+  },
+
+  "sections": [
+    {
+      "type": "hero_strip",
+      "logo_slot": "horizontal",
+      "logo_height": 56,
+      "title_card": {
+        "style": "ai_wordart",
+        "lines": ["管理者训练营"],
+        "subtitle": "Leadership Bootcamp · 2026 春季",
+        "wordart_style": "deep_space",
+        "wordart_w": 1000,
+        "wordart_h": 240
+      },
+      "hero_visual": {
+        "image": null,
+        "position": "right",
+        "scale": 0.45
+      }
+    },
+
+    { "type": "section_title_bar", "style": "numbered", "index": 1, "text": "项目背景", "accent_color": "#FBBF24" },
+    {
+      "type": "lead_paragraph",
+      "panel_style": "frosted",
+      "text": "管理是一门可以习得的手艺。新晋升的同学们，欢迎加入『管理者训练营』——这是 IEG 面向首次带团队的同学定制的【必修】项目，帮助你完成从 IC 到 Leader 的关键一跃，掌握目标管理、人才识别、团队建设的核心方法。"
+    },
+
+    { "type": "section_title_bar", "style": "numbered", "index": 2, "text": "你将收获", "accent_color": "#FBBF24" },
+    {
+      "type": "info_card",
+      "panel_style": "frosted",
+      "bullets": [
+        "1) 系统掌握 OKR / 1v1 / Feedback 三大管理基础工具",
+        "2) 完成一份针对自己团队的『团队诊断报告』并获得资深导师反馈",
+        "3) 与 IEG 12 位资深业务负责人建立长期连接",
+        "4) 理解人才发展全链路：识别 → 培养 → 晋升 → 留用"
+      ]
+    },
+
+    { "type": "section_title_bar", "style": "numbered", "index": 3, "text": "课程内容", "accent_color": "#FBBF24" },
+    {
+      "type": "meta_row",
+      "items": [
+        { "icon": null, "label": "面向", "value": "首次带团队 12 个月内的同学" },
+        { "icon": null, "label": "学习方式", "value": "线下脱产 + 课后实践" },
+        { "icon": null, "label": "学习收益", "value": "1 份团队诊断 + 导师 1v1" }
+      ]
+    },
+    {
+      "type": "curriculum_timeline",
+      "connector_style": "dot",
+      "parts": [
+        {
+          "label": "Part 1",
+          "time": "2026.06.10  09:00-18:00",
+          "format": "线下集训",
+          "topic": "目标与节奏：OKR 设计 / 周会 / 项目复盘",
+          "output": "本季度团队 OKR 草案"
+        },
+        {
+          "label": "Part 2",
+          "time": "2026.06.24  09:00-18:00",
+          "format": "线下集训",
+          "topic": "人与文化：1v1 / Feedback / 高潜识别",
+          "output": "团队诊断报告 v1"
+        },
+        {
+          "label": "Part 3",
+          "time": "2026.07.08  09:00-18:00",
+          "format": "线下集训 + 案例研讨",
+          "topic": "复杂决策：跨团队协作 / 资源争夺 / 升级机制",
+          "output": "团队诊断报告终稿 + 导师评审"
+        }
+      ]
+    },
+
+    { "type": "section_title_bar", "style": "numbered", "index": 4, "text": "讲师团", "accent_color": "#FBBF24" },
+    {
+      "type": "faculty_grid",
+      "layout": "compact",
+      "avatar_shape": "circle",
+      "members": [
+        { "avatar": null, "name": "张总监", "title": "IEG 工作室总经理",
+          "bio": "15 年游戏行业经验，主导 3 款月流水过亿项目，擅长目标拆解与团队搭建。" },
+        { "avatar": null, "name": "李教练", "title": "腾讯学习发展高级专家",
+          "bio": "前麦肯锡资深咨询师，专注领导力发展，累计辅导 200+ 位互联网中高层管理者。" },
+        { "avatar": null, "name": "王主理", "title": "IEG HRD",
+          "bio": "10 年游戏 HR 经验，擅长高潜识别与组织诊断，IEG 多个核心业务的 HRBP 顾问。" },
+        { "avatar": null, "name": "陈导师", "title": "IEG TL Council 主席",
+          "bio": "技术 TL 出身的业务负责人，亲历 IC → 一线 TL → 多线总监三段晋升，最懂新晋管理者的痛点。" }
+      ]
+    },
+
+    {
+      "type": "notice_box",
+      "inline": true,
+      "accent_color": "#F97316",
+      "bullets": [
+        "全程脱产参与，迟到 / 缺勤累计 ≥ 2 次取消结业资格",
+        "请提前与所在 BU 知会并安排好工作交接",
+        "课程涉及业务案例，作品与课件请勿外传"
+      ]
+    },
+
+    {
+      "type": "info_card_with_qr",
+      "heading": "扫码报名",
+      "body": "截止时间：2026 年 5 月 30 日 23:59\n名额：限 30 人，按报名时间 + BU 推荐顺序录取",
+      "qr_image": null,
+      "qr_label": "报名问卷"
+    },
+
+    {
+      "type": "contact_inline",
+      "text": "如有任何疑问可联系企业大学 dorrainzeng（曾子河）。"
+    }
+  ],
+
+  "decorations": {
+    "density": "low",
+    "types": ["floating_chars", "paper_planes", "crystals"],
+    "seed": 17
+  }
+}

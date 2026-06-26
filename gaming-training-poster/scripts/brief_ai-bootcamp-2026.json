@@ -1,0 +1,211 @@
+{
+  "scene": "S3",
+  "logo_position": "none",
+  "canvas": {
+    "width": 1440,
+    "bg_colors": ["#0A1B3D", "#050A1F"],
+    "bg_image_path": "/Users/dorrain/.codebuddy/skills/gaming-training-poster/assets/uploads/ai-bootcamp-2026/hero_bg.png",
+    "bg_image_fit": "width",
+    "bg_image_bottom_fade_ratio": 0.35,
+    "palette_strategy": "named:cyber_neon",
+    "pattern": "none",
+    "glow": false
+  },
+  "decorations": {
+    "density": "none"
+  },
+  "sections": [
+    {
+      "type": "hero_strip",
+      "tight_bottom": true,
+      "title_card": {
+        "style": "ai_wordart",
+        "image": "/Users/dorrain/.codebuddy/skills/gaming-training-poster/assets/uploads/ai-bootcamp-2026/wordart_chroma.png",
+        "chroma_key": false,
+        "shadow": false,
+        "width_ratio": 0.92,
+        "offset_from_bottom": 320,
+        "safe_zone": "auto"
+      }
+    },
+    {
+      "type": "lead_paragraph",
+      "panel_style": "frosted",
+      "pad": 44,
+      "text_color": "#F0F0F0",
+      "font_size": 28,
+      "font_role": "body",
+      "text": "这里是 AI 与游戏相互作用的引力场，欢迎每一位互娱人加入共建。我们将持续推荐游戏行业及公司内部最新、可落地的 AI 创作工具与提效实战案例，所有内容均源于一线实操经验，助你快速掌握 AI 在游戏场景中的落地应用。期待与你共同探索、实践，携手推动 AI 与游戏的融合创新。"
+    },
+    {
+      "type": "section_title_bar",
+      "style": "numbered",
+      "index": 1,
+      "text": "游戏 QA 的 AI 武器库",
+      "show_underline": true,
+      "accent_color": "#CBF44E"
+    },
+    {
+      "type": "info_card",
+      "panel_style": "asset_frame",
+      "asset_frame_path": "/Users/dorrain/.codebuddy/skills/gaming-training-poster/assets/uploads/ai-bootcamp-2026/info_frame.png",
+      "logo_path": "/Users/dorrain/.codebuddy/skills/gaming-training-poster/assets/uploads/ai-bootcamp-2026/instructor_yayajmliu.png",
+      "logo_height": 110,
+      "logo_invert": false,
+      "text_color": "#FFFFFF",
+      "heading": "yayajmliu（刘建）",
+      "body": "配置表规则自动生成的工程实践 · 从业务直觉到 CI 校验脚本的全链路落地"
+    },
+    {
+      "type": "section_title_bar",
+      "style": "plain",
+      "text": "解决痛点"
+    },
+    {
+      "type": "notice_box",
+      "accent_color": "#CBF44E",
+      "font_size": 26,
+      "bullets": [
+        "痛点 A：配置表规则「难分析、难实现」——业务 QA 需要深入分析需求才能识别「皮肤上架时间 ≥ 对应忍者上架时间」这类隐藏的校验规则；要把它变成跑在 CI 上的脚本，还要写跨表 Load、列字母索引、平台 API……从分析到落地的耗时极长。",
+        "痛点 B：表数量爆炸但专家有限——一个成熟项目少则几百张、多则几千张配置表，能把「业务直觉 → 校验脚本」翻译出来的资深 QA 屈指可数；专家瓶颈让规则建设长期停留在「出了问题再补一条」的被动模式，主动覆盖率永远跑不起来。",
+        "痛点 C：业务理解断层——字段命名混乱、玩法潜规则全在策划脑子里；新人 QA 往往要花数周才能真正「看懂」一份配置表，前期产出慢、后期还容易漏测，效率和质量双输。"
+      ]
+    },
+    {
+      "type": "section_title_bar",
+      "style": "plain",
+      "text": "课程收益"
+    },
+    {
+      "type": "notice_box",
+      "accent_color": "#CBF44E",
+      "font_size": 26,
+      "bullets": [
+        "一份 QA 视角的「配置表 AI 校验武器库」清单——5 件武器（读表 / 规则生成 / 知识沉淀 / 代码生成 / 精准回归）的设计思路 + 各自要避的坑。",
+        "多 Agent 工作流的工程化模式——为什么「一个 Prompt 包打天下」必然失败，怎么用 3-4 个 Agent 分工并行 + 冲突消解，把规则生成质量从 30% 拉到 90%+。",
+        "RAG 在配置表场景的落地实践——几千张配置表 + 历史规则脚本怎么入库、怎么检索、怎么避免 LLM 编造字段，让 AI 输出与团队风格对齐。"
+      ]
+    },
+    {
+      "type": "section_title_bar",
+      "style": "plain",
+      "text": "针对人群"
+    },
+    {
+      "type": "lead_paragraph",
+      "panel_style": "none",
+      "font_role": "display",
+      "pad": 20,
+      "line_height": 56,
+      "text_color": "#FFFFFF",
+      "font_size": 30,
+      "text": "游戏项目 QA / 测试开发 / 测试效能"
+    },
+    {
+      "type": "data_table",
+      "headers": ["时间", "地点"],
+      "align": ["center", "center"],
+      "col_weights": [1.0, 1.0],
+      "accent_color": "#CBF44E",
+      "header_color": "#0A1B3D",
+      "header_font_size": 30,
+      "font_size": 30,
+      "rows": [
+        ["5月26日 16:00 - 17:00", "线上 · 腾讯会议"]
+      ]
+    },
+    {
+      "type": "section_title_bar",
+      "style": "numbered",
+      "index": 2,
+      "text": "CrashSight AI CodeReview",
+      "show_underline": true,
+      "accent_color": "#CBF44E"
+    },
+    {
+      "type": "info_card",
+      "panel_style": "asset_frame",
+      "asset_frame_path": "/Users/dorrain/.codebuddy/skills/gaming-training-poster/assets/uploads/ai-bootcamp-2026/info_frame.png",
+      "logo_path": "/Users/dorrain/.codebuddy/skills/gaming-training-poster/assets/uploads/ai-bootcamp-2026/instructor_mikecui.png",
+      "logo_height": 110,
+      "logo_invert": false,
+      "text_color": "#FFFFFF",
+      "heading": "mikecui（崔向昌）",
+      "body": "从「事后救火」到「事前拦截」——基于 Hermes Agent 自进化的 CrashSight AI CodeReview 工程实践"
+    },
+    {
+      "type": "section_title_bar",
+      "style": "plain",
+      "text": "解决痛点"
+    },
+    {
+      "type": "notice_box",
+      "accent_color": "#CBF44E",
+      "font_size": 26,
+      "bullets": [
+        "崩溃风险只能事后发现：代码合入后等线上暴露才排查，修复成本高、资深工程师反复「救火」。",
+        "传统 CR 存在崩溃风险盲区：人工审查止步于逻辑表面，运行时深层隐患难以在合入前拦截。",
+        "审查质量依赖个人经验：新人审不出、老人没精力，交付质量参差不齐。",
+        "审查经验无法沉淀：踩坑教训存于个人脑中，换人审同一模块又踩同样的雷。",
+        "存量代码风险无人治理：只审增量，历史代码中的潜在崩溃风险成为定时炸弹。"
+      ]
+    },
+    {
+      "type": "section_title_bar",
+      "style": "plain",
+      "text": "课程收益"
+    },
+    {
+      "type": "notice_box",
+      "accent_color": "#CBF44E",
+      "font_size": 26,
+      "bullets": [
+        "理解「崩溃分析左移」策略——线上崩溃数据如何反哺 CodeReview，让 AI 具备崩溃预判能力。",
+        "掌握 Hermes 自进化闭环设计——从「第 1 次不知道」到「第 50 次直接给修复模板」的进化路径。",
+        "了解审查专家 Agent Teams 协同编排方法与激活策略。"
+      ]
+    },
+    {
+      "type": "section_title_bar",
+      "style": "plain",
+      "text": "针对人群"
+    },
+    {
+      "type": "notice_box",
+      "accent_color": "#CBF44E",
+      "font_size": 26,
+      "bullets": [
+        "游戏客户端 / 服务端 / 测试开发工程师。",
+        "已在用 AI CR 但效果有待增强的团队。",
+        "对 Agent 自进化 / Hermes Agent 感兴趣的技术人员。",
+        "游戏产品策划 / 项目管理（质量管理决策参考）。"
+      ]
+    },
+    {
+      "type": "data_table",
+      "headers": ["时间", "地点"],
+      "align": ["center", "center"],
+      "col_weights": [1.0, 1.0],
+      "accent_color": "#CBF44E",
+      "header_color": "#0A1B3D",
+      "header_font_size": 30,
+      "font_size": 30,
+      "rows": [
+        ["5月29日 16:00 - 17:00", "线上 · 腾讯会议"]
+      ]
+    },
+    {
+      "type": "subtitle_text",
+      "text": "AI 赋能，智启未来",
+      "font_size": 88,
+      "offset_x": 0,
+      "pad_top": 16,
+      "pad_bottom": 12
+    },
+    {
+      "type": "contact_inline",
+      "font_size": 26,
+      "text": "如有任何疑问，欢迎联系 IEG 人力资源中心 hannatu（涂祺晗）\n或班主任 v_lyeliang（梁艳恩）"
+    }
+  ]
+}

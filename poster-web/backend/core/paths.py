@@ -1,0 +1,5 @@
+from app_paths import WEB_ROOT, PACKAGE_ROOT, UPLOADS_DIR, OUTPUTS_DIR, DATA_ROOT
+
+STATIC_ROOT = WEB_ROOT / "static"
+PROJECTS_ROOT = WEB_ROOT / "projects"
+POSTER_SKILL_ROOT = PACKAGE_ROOT / "gaming-training-poster"

@@ -1,0 +1,6 @@
+# 把用户提供的 Logo 文件放在此目录
+# 命名约定见 ../README.md
+#
+# logo_gaming_main.png   主 Logo（彩色，中性底）
+# logo_gaming_light.png  亮版（用于深色底）
+# logo_gaming_dark.png   暗版（用于浅色底）

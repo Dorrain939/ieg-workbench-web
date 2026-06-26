@@ -1,0 +1,5 @@
+# 把字体文件放在此目录
+# font_cn_heavy.otf      中文标题（思源黑体 Heavy）
+# font_cn_regular.otf    中文正文
+# font_en_display.ttf    英文/数字标题
+# font_gaming_bold.ttf   游戏风装饰字体（compose_poster.py 默认引用）

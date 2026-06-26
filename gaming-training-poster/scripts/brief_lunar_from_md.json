@@ -1,0 +1,184 @@
+{
+  "_doc": "由 content_md_to_brief.py 自动生成；可继续手工微调。",
+  "schema_version": 2,
+  "scene": "S4",
+  "canvas": {
+    "width": 1200,
+    "format": "long-poster",
+    "bg_strategy": "gradient-2",
+    "bg_colors": [
+      "#FFF8EE",
+      "#FFE4B8"
+    ],
+    "glow": false,
+    "pattern": "none",
+    "grain": false,
+    "palette_strategy": "named:festival_red",
+    "bg_image_path": "assets/uploads/lunar-new-year-2026/hero_kv.png",
+    "bg_image_fit": "width",
+    "bg_image_max_height": 520,
+    "bg_image_height": 520,
+    "bg_image_blend_h": 200,
+    "bg_image_chroma_key": true,
+    "bg_image_chroma_bg_kind": "dark",
+    "bg_image_chroma_dark_max": 110,
+    "bg_image_chroma_sat_max": 28,
+    "bg_image_chroma_softness": 22
+  },
+  "decoration_family": "ceremony-gold",
+  "seed": 26,
+  "logo_position": "top",
+  "logo_align": "center",
+  "logo_height": 96,
+  "logos": [
+    "assets/ieg_hr_color.png"
+  ],
+  "sections": [
+    {
+      "type": "hero_strip",
+      "height": 800,
+      "logo_slot": null,
+      "tight_bottom": true,
+      "title_card": {
+        "style": "ai_wordart",
+        "lines": [
+          "新春启航"
+        ],
+        "subtitle": "IEG 2026 新春培训计划 · 龙年开训",
+        "width_ratio": 0.66,
+        "offset_from_bottom": 60,
+        "safe_zone": "bottom",
+        "image": "assets/uploads/lunar-new-year-2026/wordart.png"
+      },
+      "hero_mascot": {
+        "image": "assets/uploads/lunar-new-year-2026/mascot.png",
+        "side": "right",
+        "height_ratio": 0.62,
+        "offset_y": -30
+      }
+    },
+    {
+      "type": "section_title_bar",
+      "style": "numbered",
+      "index": 1,
+      "text": "项目背景"
+    },
+    {
+      "type": "lead_paragraph",
+      "panel_style": "frosted",
+      "text": "辞旧迎新，万象启程。IEG 企业大学谨在此向各位同事拜个早年，并为大家备好了 2026 新春培训『红包』——围绕『管理跃迁 / 业务复盘 / 心法传承』三条主线，邀请你和你的团队一起，把开年第一步走得更稳、更准、更燃。"
+    },
+    {
+      "type": "section_title_bar",
+      "style": "numbered",
+      "index": 2,
+      "text": "你将获得"
+    },
+    {
+      "type": "bullet_points_block",
+      "bullets": [
+        "管理跃迁能力：从执行者升级到带团队、带业务的领导者",
+        "业务复盘方法：用结构化复盘把 Q4 经验沉淀为团队资产",
+        "心法传承训练：把 IEG 老炮的\"打仗心法\"落到日常协作"
+      ]
+    },
+    {
+      "type": "section_title_bar",
+      "style": "numbered",
+      "index": 3,
+      "text": "课程内容"
+    },
+    {
+      "type": "data_table",
+      "headers": [
+        "时间",
+        "主题",
+        "形式",
+        "产出"
+      ],
+      "rows": [
+        [
+          "1.20 周二 14:00",
+          "管理跃迁开篇课",
+          "线下大讲堂",
+          "管理者画像自评"
+        ],
+        [
+          "1.22 周四 10:00",
+          "业务复盘工作坊",
+          "线上 + 线下",
+          "团队 Q1 复盘报告"
+        ],
+        [
+          "1.24 周六 14:00",
+          "心法传承共创",
+          "线下闭门",
+          "协作心法卡 ×3"
+        ]
+      ],
+      "style": "soft"
+    },
+    {
+      "type": "section_title_bar",
+      "style": "numbered",
+      "index": 4,
+      "text": "讲师团"
+    },
+    {
+      "type": "faculty_grid",
+      "layout": "detail",
+      "members": [
+        {
+          "name": "张老师",
+          "title": "IEG 学习与发展总监",
+          "avatar": "assets/uploads/lunar-new-year-2026/instructor_zhang.jpg"
+        },
+        {
+          "name": "李老师",
+          "title": "业务复盘资深教练",
+          "avatar": "assets/uploads/lunar-new-year-2026/instructor_li.jpg"
+        }
+      ]
+    },
+    {
+      "type": "section_title_bar",
+      "style": "numbered",
+      "index": 5,
+      "text": "注意事项"
+    },
+    {
+      "type": "notice_box",
+      "inline": true,
+      "bullets": [
+        "全程脱产参与，三场任选一场缺勤即取消结业资格",
+        "提前与所在 BU 知会工作交接，开训前 3 天关闭微信群消息免打扰",
+        "课程涉及业务案例，作品与课件请勿外传，结业后 IEG 学习平台留存"
+      ]
+    },
+    {
+      "type": "cta_button",
+      "text": "立即报名",
+      "pre_lines": [
+        "截止时间：2026 年 2 月 5 日 23:59",
+        "名额：每场限 30 人，按报名时间 + BU 推荐顺序录取"
+      ],
+      "post_lines": [
+        "开训地点：IEG 滨海大厦 28F 共创空间",
+        "海报发布后 HR 将在此处挂上报名链接"
+      ]
+    },
+    {
+      "type": "section_title_bar",
+      "style": "numbered",
+      "index": 6,
+      "text": "联系方式"
+    },
+    {
+      "type": "contact_inline",
+      "text": "联系人：dorrainzeng（曾子河）"
+    }
+  ],
+  "decorations": {
+    "density": "none"
+  }
+}

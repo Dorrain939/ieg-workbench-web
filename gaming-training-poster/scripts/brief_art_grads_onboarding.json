@@ -1,0 +1,144 @@
+{
+  "schema_version": 2,
+  "scene": "S1",
+  "scheme_id": "S1-aurora",
+  "canvas": {
+    "width": 1200,
+    "format": "long-poster",
+    "bg_strategy": "gradient-2",
+    "bg_colors": ["#3B2566", "#1A1042"],
+    "glow": true,
+    "glow_top_color": "#FF7A59",
+    "glow_bottom_color": "#6DE3B0",
+    "pattern": null,
+    "grain": false,
+    "bg_image_path": "/Users/dorrain/WorkBuddy/2026-05-18-task-4/gaming-training-poster/assets/generated/游戏大厂美术毕业生培训通知海报的顶部主视觉插画_不含任何文字_2026-05-19T10-43-57.png",
+    "bg_image_tint": null,
+    "bg_image_tint_alpha": 0,
+    "bg_image_top_fade": 0,
+    "bg_image_bottom_fade": 0,
+    "bg_image_height": 760,
+    "bg_image_crop_top": 0.04,
+    "bg_image_crop_bottom": 0.56,
+    "bg_image_y_align": "top",
+    "bg_image_blend_h": 280
+  },
+  "decoration_family": "semi-3d-collage",
+  "seed": 13,
+  "sections": [
+    {
+      "type": "hero_strip",
+      "height": 760,
+      "logo_slot": "horizontal",
+      "logo_height": 64,
+      "title_card": {
+        "style": "ai_wordart",
+        "image": "/Users/dorrain/WorkBuddy/2026-05-18-task-4/gaming-training-poster/assets/generated/高品质艺术字海报标题图层_主标题文字内容__美术新鹅启航_六_2026-05-19T10-43-57.png",
+        "width_ratio": 0.88,
+        "offset_from_bottom": 440,
+        "chroma_key": true,
+        "key_lightness": 50,
+        "key_saturation": 10,
+        "key_softness": 5
+      }
+    },
+    {
+      "type": "lead_paragraph",
+      "panel_style": "frosted",
+      "text": "新鹅你好，欢迎加入腾讯互动娱乐事业群（IEG）！游戏是综合艺术，美术是其中最直接呈现品质的一环。从概念原画到角色、场景、UI、特效、动画，每一笔都决定了玩家进入世界的第一感受。『美术新鹅启航』是面向 IEG 全体美术毕业生定制的入职培养项目【必修】，将带你完成从校园到大厂的关键一跃——掌握游戏美术工业流程、理解项目协作、形成可持续成长的专业方法论。"
+    },
+    {
+      "type": "section_title_bar",
+      "style": "neon",
+      "text": "项目概览"
+    },
+    {
+      "type": "info_card",
+      "heading": "我们想帮你解决什么",
+      "body": "1) 校园作品 → 工业管线：把单兵创作切换为大型项目协作；2) 单一审美 → 多品类视野：跨二次元、写实、卡通、潮玩等不同项目调性；3) 工具应用 → 流程理解：不只是会软件，而是理解整条美术生产链路；4) 个人成长 → 长期方向：在大厂体系里锚定下一站。"
+    },
+    {
+      "type": "info_card",
+      "heading": "你将获得",
+      "body": "· 专业基础课：游戏美术全流程（概念 / 角色 / 场景 / UI / 动画 / 特效 / TA）系统课；· 项目实战：脱产参与 MiniArt 实战，体验从立项到上线的完整美术管线；· 名师面对面：IEG 美术总监 / 主美 / 资深 TA 直接带教与作品评审；· 跨工作室游学：走访头部工作室，理解不同品类的美术调性与组织方式；· 长期资源：结业后接入 IEG 美术学习中心 + 导师社群，持续支持你成长。"
+    },
+    {
+      "type": "section_title_bar",
+      "style": "neon",
+      "text": "时间安排"
+    },
+    {
+      "type": "schedule_table",
+      "rows": [
+        { "stage": "Phase 1 · 岗前预习", "time": "2026.06 — 2026.07", "format": "线上", "deliverable": "美术能力调查问卷 + 指定游戏体验报告" },
+        { "stage": "Phase 2 · 集中训练营", "time": "2026.08.10 — 2026.08.30", "format": "深圳总部·脱产", "deliverable": "MiniArt 实战作品 1 套" },
+        { "stage": "Phase 3 · 工作室游学", "time": "2026.09.01 — 2026.09.05", "format": "线下走访", "deliverable": "工作室调研笔记" },
+        { "stage": "Phase 4 · 入职后跟练", "time": "2026.09 — 2026.12", "format": "导师 1v1 + 月度作品会", "deliverable": "结业作品集 + 导师评审" }
+      ]
+    },
+    {
+      "type": "section_title_bar",
+      "style": "neon",
+      "text": "常见问题"
+    },
+    {
+      "type": "qa_block",
+      "items": [
+        {
+          "q": "Q1: 这个项目是必修还是选修？",
+          "a": "面向 IEG 全体美术毕业生【必修】，包含岗前学习与入职后培训两个阶段。请按时完成各阶段任务，并妥善安排个人时间。"
+        },
+        {
+          "q": "Q2: 我所在的项目组很忙，能否请假或部分参加？",
+          "a": "集中训练营阶段为脱产培训，所在 BU/项目组已知悉并提供支持。如确有特殊情况，请提前与项目运营沟通申请。"
+        },
+        {
+          "q": "Q3: 训练营会评分吗？是否影响转正？",
+          "a": "训练营有过程性评估与结业作品评审，评估结果会作为新人成长档案的一部分进入培养系统，但不直接决定转正。我们更关心你是否真的在这段时间里建立了大厂美术的工作方法。"
+        },
+        {
+          "q": "Q4: 可以带自己的作品和方向吗？",
+          "a": "非常欢迎。报名时可在问卷中填写你目前的方向（角色 / 场景 / UI / 动画 / 特效 / TA / 概念 等），我们会据此进行分组与导师匹配。"
+        }
+      ]
+    },
+    {
+      "type": "section_title_bar",
+      "style": "neon",
+      "text": "报名方式"
+    },
+    {
+      "type": "info_card_with_qr",
+      "heading": "报名通道",
+      "body": "请扫描右侧二维码完成『美术新鹅启航』报名问卷，提交个人信息、专业方向与作品集链接。截止时间：北京时间 2026 年 6 月 5 日（周五）24:00。完成报名即视为接受项目培养计划与时间安排，请认真填写。",
+      "qr_image": null,
+      "qr_label": "报名问卷"
+    },
+    {
+      "type": "rules_box",
+      "items": [
+        "线下集训期间请配合签到，迟到 3 次以上将进入补课名单",
+        "请自备数位板与日常作画设备，工作室提供工位与显示器",
+        "课程内容涉及内部项目，作品与课件不得对外传播",
+        "请关注后续邮件 / 企微通知，及时获取最新安排"
+      ]
+    },
+    {
+      "type": "contact_card",
+      "text": "如有任何疑问，欢迎联系项目运营 dorrainzeng（曾子河） 或 项目主理人 ycchen（陈一辰）。请扫码添加企业微信，备注【姓名 + 项目组 + 美术新鹅】。",
+      "contacts": [
+        { "name": "曾子河 / dorrainzeng", "qr": null },
+        { "name": "陈一辰 / ycchen", "qr": null }
+      ]
+    },
+    {
+      "type": "footer_logobar",
+      "logos": []
+    }
+  ],
+  "decorations": {
+    "density": "low",
+    "types": ["floating_chars", "paper_planes", "crystals"],
+    "seed": 13
+  }
+}

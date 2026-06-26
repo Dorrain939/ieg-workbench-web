@@ -1,0 +1,2649 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1.0" />
+<title>IEG 人才发展项目管理 AI 工作台</title>
+<script>
+  if (location.protocol === 'file:') {
+    document.documentElement.innerHTML = '<head><meta charset="UTF-8"><title>请从本地服务打开</title></head><body style="font-family:-apple-system,BlinkMacSystemFont, sans-serif;padding:40px;background:#f8fafc;color:#111827"><h2>请从本地服务地址打开</h2><p>这个工作台依赖后端 API，不能直接双击 HTML 文件运行。</p><p><a style="color:#2563eb;font-weight:700" href="http://127.0.0.1:8766/">打开 http://127.0.0.1:8766/</a></p></body>';
+    throw new Error('Use http://127.0.0.1:8766/ instead of file://');
+  }
+</script>
+<script src="https://unpkg.com/vue@3/dist/vue.global.prod.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/sortablejs@1.15.0/Sortable.min.js"></script>
+<script src="/static/tiptap-runtime.js"></script>
+<script>
+  window.TIPTAP_READY = window.TIPTAP_READY || new Promise((resolve, reject) => {
+    const started = Date.now();
+    const timer = setInterval(() => {
+      if (window.TIPTAP) { clearInterval(timer); resolve(window.TIPTAP); return; }
+      if (Date.now() - started > 8000) {
+        clearInterval(timer);
+        const err = new Error('TipTap 本地运行时加载失败：请确认 /static/tiptap-runtime.js 已复制到 poster-web/static/');
+        window.TIPTAP_LOAD_ERROR = err;
+        console.error(err);
+        reject(err);
+      }
+    }, 50);
+  });
+</script>
+
+<link rel="stylesheet" href="/static/styles.css?v=20260626-restore-full-ui-1" />
+</head>
+<body>
+<div id="app">
+
+  <!-- ============= 顶栏 ============= -->
+  <div class="topbar">
+    <div class="brand" @click="goList">
+      <div class="brand-logo">IEG</div>
+      <div class="brand-text">人才发展项目管理 AI 工作台</div>
+    </div>
+
+    <div class="topbar-tabs" v-if="view !== 'editor'">
+      <div class="topbar-tab active">工作台</div>
+    </div>
+
+    <div class="spacer"></div>
+
+    <!-- 编辑器视图专属：渲染相关按钮 -->
+    <template v-if="view === 'editor'">
+      <select class="btn" v-model="selectedTemplate" @change="loadTemplate">
+        <option value="">载入模板…</option>
+        <option v-for="t in templates" :value="t.name">{{ t.label }}</option>
+      </select>
+      <button class="btn" @click="resetBrief">新建</button>
+      <button v-if="editorContext.pid"
+              class="btn"
+              @click="saveBriefToProject"
+              :disabled="savingToProject || !brief.sections || brief.sections.length === 0"
+              title="保存当前 brief 为项目新版本">
+        {{ savingToProject ? '保存中…' : '💾 保存到项目' }}
+      </button>
+      <button v-if="editorContext.pid && currentProject"
+              class="btn btn-sm" @click="goDetail(editorContext.pid)" title="返回项目详情">
+        ‹ {{ currentProject.name.slice(0,12) }}
+      </button>
+      <button class="btn btn-primary" @click="render" :disabled="rendering">
+        {{ rendering ? '渲染中…' : '🚀 渲染' }}
+      </button>
+    </template>
+
+    <!-- 模型状态条 -->
+    <div class="llm-status"
+         :class="{ ok: modelConfigured('llm') && modelConfigured('image'), fail: !(modelConfigured('llm') && modelConfigured('image')) }"
+         @click="openSettings"
+         :title="allModelStatusText()">
+      <span class="dot"></span>
+      <span>
+        <span class="check-mark" v-if="modelConfigured('llm') && modelConfigured('image')">✓</span>
+        LLM {{ modelConfigured('llm') ? '已配置' : '未配置' }} · 生图 {{ modelConfigured('image') ? '已配置' : '未配置' }}
+      </span>
+    </div>
+
+    <button class="icon-btn" title="搜索">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/></svg>
+    </button>
+    <button class="icon-btn" title="通知">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8a6 6 0 00-12 0c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 01-3.46 0"/></svg>
+      <span class="dot-red"></span>
+    </button>
+    <button class="icon-btn" @click="openSettings" title="设置">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 11-2.83 2.83l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-4 0v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 11-2.83-2.83l.06-.06A1.65 1.65 0 004.6 15a1.65 1.65 0 00-1.51-1H3a2 2 0 010-4h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 112.83-2.83l.06.06A1.65 1.65 0 009 4.6a1.65 1.65 0 001-1.51V3a2 2 0 014 0v.09A1.65 1.65 0 0015 4.6a1.65 1.65 0 001.82-.33l.06-.06a2 2 0 112.83 2.83l-.06.06A1.65 1.65 0 0019.4 9c.16.36.51.62.91.6h.18a2 2 0 010 4h-.09c-.4-.02-.75.24-.91.6z"/></svg>
+    </button>
+    <div class="avatar-btn" title="个人">您</div>
+  </div>
+
+  <!-- ============= 主体两栏 ============= -->
+  <div class="main">
+
+    <!-- ===== 左 sidebar（编辑器视图隐藏） ===== -->
+    <div class="sidebar" v-if="view === 'detail' && detailNav === 'poster_brief'"
+         :class="{ 'poster-sidebar': view === 'detail' && detailNav === 'poster_brief' }">
+      <template v-if="view === 'detail' && detailNav === 'poster_brief'">
+        <div class="poster-preview-rail">
+          <div class="poster-live-preview">
+            <div class="poster-live-head">
+              <b>海报实时预览</b>
+              <div class="poster-preview-tools">
+                <button @click="setPosterPreviewZoom(-20)" :disabled="posterPreviewZoom <= 60">－</button>
+                <span>{{ posterPreviewZoom }}%</span>
+                <button @click="setPosterPreviewZoom(20)" :disabled="posterPreviewZoom >= 220">＋</button>
+              </div>
+            </div>
+            <div class="poster-live-canvas">
+              <div v-if="skillRunning || skillStream.streaming" class="poster-progress-stage embedded">
+                <div class="poster-progress-copy">
+                  <b>正在生成海报图片</b>
+                  <span>{{ skillStream.progress[skillStream.progress.length - 1] || 'AI 正在读取模块、素材和视觉层' }}</span>
+                </div>
+                <div class="penguin-runway">
+                  <div class="penguin-runner">
+                    <img src="/static/progress/ieg_penguin_runner.png" alt="生成中" />
+                  </div>
+                </div>
+                <div class="poster-progress-steps">
+                  <span class="active">读取模块</span>
+                  <span class="active">匹配素材</span>
+                  <span class="active">渲染长图</span>
+                  <span :class="{active: skillStream.posterUrl}">完成</span>
+                </div>
+              </div>
+              <div v-else-if="posterBriefPreviewUrl()"
+                   class="poster-live-scroll"
+                   title="双击放大预览"
+                   @dblclick="openPosterLightbox()"
+                   @wheel.prevent="onPosterPreviewWheel"
+                   @pointerdown="onPosterPreviewPointerDown"
+                   @pointermove="onPosterPreviewPointerMove"
+                   @pointerup="onPosterPreviewPointerEnd"
+                   @pointercancel="onPosterPreviewPointerEnd"
+                   @touchstart.passive="onPosterPreviewTouchStart"
+                   @touchmove.prevent="onPosterPreviewTouchMove"
+                   @touchend="onPosterPreviewTouchEnd"
+                   @touchcancel="onPosterPreviewTouchEnd">
+                <img class="poster-preview-img"
+                     :src="posterBriefPreviewUrl()"
+                     alt="海报预览"
+                     :style="{ width: posterPreviewZoom + '%', maxWidth: posterPreviewZoom <= 100 ? '100%' : 'none' }" />
+              </div>
+              <div v-else class="poster-preview-empty">
+                <img src="/static/progress/ieg_penguin_runner.png" alt="" />
+                <b>{{ skillStream.posterPreviewDirty ? '模块内容已更新' : '还没有海报预览' }}</b>
+                <span>{{ skillStream.autoSaving ? '正在自动保存当前模块内容…' : (skillStream.posterPreviewDirty ? '点击生成海报预览后刷新画面。缺少素材时会在这里提示。' : '选择海报子项目后，点击生成海报预览查看效果。') }}</span>
+              </div>
+            </div>
+            <div v-if="skillStream.error" class="poster-live-error">{{ skillStream.error }}</div>
+            <div v-if="posterBriefPreviewUrl()" class="poster-live-actions">
+              <button class="btn btn-sm" @click="openPosterLightbox()">放大预览</button>
+              <a v-if="posterExportUrl('png')" class="btn btn-sm" :href="posterExportUrl('png')" download="poster.png">导出 PNG</a>
+              <a v-if="posterExportUrl('pdf')" class="btn btn-sm" :href="posterExportUrl('pdf')" target="_blank">导出 PDF</a>
+              <button v-if="skillStream.done && skillStream.lastArtifact" class="btn btn-primary btn-sm" @click="applyBriefToEditor(skillStream.lastArtifact)">进入编辑器调整</button>
+            </div>
+          </div>
+
+          <div class="poster-ai-panel">
+            <div class="poster-ai-head">
+              <b>AI 助手</b>
+              <span :class="chatStatusClass">{{ chat.busy ? '思考中' : (chat.modelReady ? chat.model : (chat.error || '未配置')) }}</span>
+            </div>
+            <div class="poster-ai-messages" ref="chatMessagesEl">
+              <div v-for="(m, i) in chat.history" :key="i" class="poster-ai-bubble" :class="m.role">
+                <b>{{ m.role === 'user' ? '你' : 'AI' }}</b>
+                <span>{{ m.content }}</span>
+              </div>
+            </div>
+            <div v-if="chat.uploadedImages.length" class="poster-ai-uploaded">
+              <span v-for="img in chat.uploadedImages" :key="img.path">已选 {{ img.asset_type_label || assetTypeLabel(img.asset_type) }}</span>
+            </div>
+            <div class="poster-ai-send-row">
+              <label class="poster-ai-attach" :class="{disabled: chat.uploadingImage || chat.busy}" title="上传图片给 AI 放入海报">
+                ＋
+                <input type="file" accept="image/*" style="display:none" @change="uploadChatImage" />
+              </label>
+              <textarea v-model="chat.input"
+                        rows="2"
+                        placeholder="输入修改要求，或上传图片后直接发送"
+                        @keydown.enter.exact.prevent="sendMessage"
+                        :disabled="chat.busy"></textarea>
+              <button class="btn btn-primary btn-sm" @click="sendMessage" :disabled="chat.busy || (!chat.input.trim() && chat.uploadedImages.length===0)">发送</button>
+            </div>
+          </div>
+        </div>
+      </template>
+
+    </div>
+
+    <!-- ===== 右内容区 ===== -->
+    <div class="content" v-if="view !== 'editor'"
+         :class="{ 'poster-content': view === 'detail' && detailNav === 'poster_brief' }">
+      <div class="content-narrow"
+           :class="{ 'poster-content-wide': view === 'detail' && detailNav === 'poster_brief' }">
+
+        <!-- ========== 知识库 ========== -->
+        <template v-if="navTab === 'knowledge'">
+          <div class="page-head">
+            <div class="title-block">
+              <h1>知识库</h1>
+              <div class="sub">平台通用资料库，只保存跨项目的品牌规范、制度资料和通用案例</div>
+            </div>
+            <label class="btn btn-primary btn-lg" :class="{disabled: kb.uploading}">
+              <span style="font-size:16px;line-height:1">＋</span>
+              {{ kb.uploading ? '上传中…' : '上传文档' }}
+              <input type="file" multiple style="display:none"
+                     @change="handleKbUpload($event, 'global', null)"
+                     :accept="KB_ACCEPT" />
+            </label>
+          </div>
+
+          <div class="banner" style="margin-bottom:14px">
+            <span>📚</span>
+            <span class="spacer">平台通用知识库不会自动混入项目或功能知识库；需要某个 skill 使用时，必须在脚本中显式调用。</span>
+          </div>
+
+          <div v-if="platformKbDocs.length === 0" class="empty-page" style="padding:60px 24px">
+            <div style="font-size:48px;margin-bottom:12px">📚</div>
+            <h2>平台通用知识库还是空的</h2>
+            <p>这里适合放跨项目复用的资料。项目资料、海报文案资料、生图素材会放到各自层级，不会在这里混放。</p>
+          </div>
+
+          <div v-else class="kb-list">
+            <div v-for="d in platformKbDocs" :key="d.id" class="kb-row" :class="{ error: d.status === 'error' }">
+              <div class="kb-icon">{{ kbIcon(d.format) }}</div>
+              <div class="kb-info">
+                <div class="kb-name">{{ d.filename }}
+                  <span v-if="d.status === 'error'" class="kb-tag err">解析失败</span>
+                  <span v-else-if="d.status === 'parsing'" class="kb-tag">解析中</span>
+                  <span v-else class="kb-tag ok">{{ d.chunks_count }} 片段</span>
+                </div>
+                <div class="kb-summary">{{ d.summary || d.error || '...' }}</div>
+                <div class="kb-meta">
+                  <span>{{ formatBytes(d.size) }}</span>
+                  <span>·</span>
+                  <span>{{ d.format.toUpperCase() }}</span>
+                  <span>·</span>
+                  <span>{{ d.char_count || 0 }} 字</span>
+                  <span>·</span>
+                  <span>{{ relativeTime(d.created_at) }}</span>
+                </div>
+              </div>
+              <button class="btn btn-sm btn-danger" @click.stop="deleteKbDoc(d)">删除</button>
+            </div>
+          </div>
+        </template>
+
+        <!-- ========== 其他 sidebar 占位空页 ========== -->
+        <div v-else-if="navTab !== 'projects'" class="empty-page">
+          <div style="font-size:48px;margin-bottom:12px">{{ NAV_META[navTab].icon }}</div>
+          <h2>{{ NAV_META[navTab].title }}</h2>
+          <p>{{ NAV_META[navTab].desc }}</p>
+          <div class="badge">v0.4 即将上线</div>
+        </div>
+
+        <!-- ========== 项目列表 ========== -->
+        <template v-else-if="view === 'list'">
+          <div v-if="!modelConfigured('llm')" class="banner warn">
+            <span>⚠️</span>
+            <span class="spacer">还没配置大语言模型 API Key，AI 改稿、设计阐释、文案生成将不可用。</span>
+            <button class="btn btn-primary btn-sm" @click="openSettings">立即配置</button>
+          </div>
+
+          <div class="project-top-visual" aria-label="工作台装饰视频">
+            <video src="/static/covers/workbench_top_video.mp4"
+                   autoplay muted loop playsinline preload="metadata"></video>
+          </div>
+
+          <section class="home-ai-shell" aria-label="首页 AI 助手">
+            <div class="home-ai-card">
+              <div class="home-ai-head">
+                <div>
+                  <b>AI 项目助手</b>
+                  <span>直接说你想做什么，AI 会判断项目、场景和功能。</span>
+                </div>
+                <select v-model="homeAssistant.mode" class="home-ai-mode">
+                  <option value="project">项目</option>
+                  <option value="poster">海报</option>
+                  <option value="interview_outline">访谈</option>
+                  <option value="report">研究报告</option>
+                  <option value="ppt_outline">PPT</option>
+                  <option value="kb">知识库</option>
+                </select>
+              </div>
+              <div v-if="homeAssistant.messages.length" class="home-ai-chat">
+                <div v-for="(m, i) in homeAssistant.messages" :key="i"
+                     class="home-ai-bubble"
+                     :class="m.role">
+                  <b>{{ m.role === 'user' ? '你' : 'AI' }}</b>
+                  <span>{{ m.content }}</span>
+                </div>
+              </div>
+              <div v-if="homeAssistant.attachments.length" class="home-ai-attachments">
+                <span v-for="(file, i) in homeAssistant.attachments" :key="file.id" class="home-ai-file-chip">
+                  {{ file.filename }}
+                  <button type="button" @click="removeHomeAssistantAttachment(i)" title="移除附件">×</button>
+                </span>
+              </div>
+              <div class="home-ai-input">
+                <label class="home-ai-tool-btn" :class="{ busy: homeAssistant.uploadingAttachment }" title="上传附件">
+                  ＋
+                  <input type="file"
+                         :accept="KB_ACCEPT"
+                         multiple
+                         style="display:none"
+                         @change="handleHomeAssistantAttachment" />
+                </label>
+                <input v-model="homeAssistant.input"
+                       type="text"
+                       placeholder="例如：新建一个新经理训练营项目；打开特效训练营的海报功能；帮我找最近更新的项目"
+                       @keydown.enter.prevent="sendHomeAssistant" />
+                <button class="home-ai-tool-btn"
+                        type="button"
+                        :class="{ active: homeAssistant.listening }"
+                        @click="toggleHomeVoiceInput"
+                        :title="homeAssistant.listening ? '停止语音输入' : '语音输入'">🎙</button>
+                <button class="home-ai-send-btn"
+                        :disabled="homeAssistant.busy || (!homeAssistant.input.trim() && !homeAssistant.attachments.length)"
+                        @click="sendHomeAssistant"
+                        :title="homeAssistant.busy ? '理解中' : '发送'">
+                  <span v-if="homeAssistant.busy">…</span>
+                  <span v-else>↑</span>
+                </button>
+              </div>
+            </div>
+          </section>
+
+          <div class="page-head">
+            <div class="title-block">
+              <h1>项目管理</h1>
+              <div class="sub">按培训活动组织文案稿与海报版本</div>
+            </div>
+            <button class="btn btn-primary btn-lg" @click="openNewProject">
+              <span style="font-size:16px;line-height:1">＋</span> 新建项目
+            </button>
+          </div>
+
+          <div class="toolbar-row">
+            <div class="searchbox">
+              <input type="text" v-model="searchQuery" placeholder="搜索项目、负责人、主题" />
+            </div>
+            <div class="tabs">
+              <div v-for="t in TABS" :key="t.key" class="tab"
+                   :class="{ active: filterTab === t.key }"
+                   @click="filterTab = t.key">
+                <span class="tab-icon">{{ t.icon }}</span>{{ t.label }}<span class="count">{{ tabCount(t.key) }}</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="section-title">
+            <h2>项目橱窗</h2>
+            <span class="count-pill">{{ activeProjects.length }} 个</span>
+            <div class="spacer"></div>
+            <span class="more">按更新时间排序 ↓</span>
+          </div>
+
+          <div class="proj-grid">
+            <div v-for="p in activeProjects" :key="p.id" class="proj-card" @click="goDetail(p.id)">
+              <div class="proj-cover">
+                <img v-if="p.cover_url" :src="p.cover_url" />
+                <div v-else class="placeholder" :style="{ background: p.cover_tone }">
+                  {{ p.name.slice(0,2) }}
+                </div>
+                <div class="badge-status" :class="p.status">
+                  <span class="bd"></span>{{ STATUS_LABEL[p.status] }}
+                </div>
+              </div>
+              <div class="proj-body">
+                <div class="proj-name">{{ p.name }}</div>
+                <div class="proj-stats">
+                  <div class="ps-item">文案稿 <span class="ps-num">{{ p.stats.copywriter }}</span></div>
+                  <div class="ps-item">海报 <span class="ps-num">{{ p.stats.poster_render }}</span></div>
+                </div>
+              </div>
+              <div class="proj-foot">
+                <div class="owner">
+                  <div class="avatar s24" :class="ownerColorClass(p.owner.name)">{{ p.owner.initial }}</div>
+                  <div class="owner-name">{{ p.owner.name }}</div>
+                </div>
+                <span class="updated">{{ relativeTime(p.updated_at) }}</span>
+                <button class="menu-btn" @click.stop="toggleMenu(p.id)" title="更多">⋯</button>
+              </div>
+
+              <div v-if="menuOpenFor === p.id" class="menu-pop" @click.stop>
+                <div class="menu-section">
+                  <div class="menu-head">更改状态</div>
+                  <div class="menu-item" @click="changeStatus(p, 'in_progress')">
+                    <span>▶</span><span>设为进行中</span>
+                    <span v-if="p.status==='in_progress'" class="check">✓</span>
+                  </div>
+                  <div class="menu-item" @click="changeStatus(p, 'pending')">
+                    <span>⏸</span><span>设为待启动</span>
+                    <span v-if="p.status==='pending'" class="check">✓</span>
+                  </div>
+                  <div class="menu-item" @click="changeStatus(p, 'archived')">
+                    <span>📦</span><span>移至已归档</span>
+                    <span v-if="p.status==='archived'" class="check">✓</span>
+                  </div>
+                </div>
+                <div class="menu-section">
+                  <div class="menu-item danger" @click="confirmDeleteProject(p)">
+                    <span>🗑️</span><span>删除项目</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div class="proj-card add" @click="openNewProject">
+              <div class="plus-circle">＋</div>
+              <div>新建项目</div>
+            </div>
+          </div>
+
+          <div class="brand-tagline">
+            <div>如有疑问，请联系 dorrainzeng(曾德蕴)</div>
+            <div>原型由 <span>Codex Claude</span> 通过自然语言生成</div>
+          </div>
+        </template>
+
+        <!-- ========== 项目详情 ========== -->
+        <template v-else-if="view === 'detail' && currentProject">
+          <div class="detail-backbar">
+            <button v-if="detailNav === 'overview'" class="btn btn-primary btn-sm detail-back-btn" @click="goList">
+              ‹ 返回项目列表
+            </button>
+            <button v-else class="btn btn-primary btn-sm detail-back-btn" @click="setDetailNav('overview')">
+              ‹ 返回项目概览
+            </button>
+            <span>{{ currentProject.name }}</span>
+            <div class="detail-back-spacer"></div>
+            <div v-if="detailNav === 'poster_brief'" class="detail-back-actions">
+              <button class="btn btn-sm" :disabled="skillStream.autoSaving" @click="saveCurrentPosterEdit">
+                {{ skillStream.autoSaving ? '保存中…' : '保存当前编辑' }}
+              </button>
+              <button class="btn btn-primary btn-sm" :disabled="skillRunning || copyImport.uploading" @click="generatePosterFromModules">
+                {{ skillRunning || copyImport.uploading ? '生成中…' : '生成海报预览' }}
+              </button>
+            </div>
+          </div>
+
+          <div class="detail-banner" :style="projectDetailBannerStyle(currentProject)">
+            <div class="detail-banner-visual"></div>
+            <div class="detail-banner-info">
+              <h1>{{ currentProject.name }}</h1>
+              <div class="detail-banner-meta">
+                <span class="status-select" :class="currentProject.status" @click.stop="toggleDetailStatusMenu" style="position:relative">
+                  <span class="bd" style="width:6px;height:6px;border-radius:50%;background:currentColor"></span>
+                  {{ STATUS_LABEL[currentProject.status] }}
+                  <span class="caret">▼</span>
+                  <div v-if="detailStatusMenuOpen" class="menu-pop" style="right:0;bottom:auto;top:30px;min-width:140px" @click.stop>
+                    <div class="menu-section">
+                      <div class="menu-item" @click="changeStatus(currentProject, 'in_progress'); detailStatusMenuOpen=false">▶ 进行中</div>
+                      <div class="menu-item" @click="changeStatus(currentProject, 'pending'); detailStatusMenuOpen=false">⏸ 待启动</div>
+                      <div class="menu-item" @click="changeStatus(currentProject, 'archived'); detailStatusMenuOpen=false">📦 已归档</div>
+                    </div>
+                  </div>
+                </span>
+                <span style="display:inline-flex;align-items:center;gap:6px">
+                  <span class="avatar s24" :class="ownerColorClass(currentProject.owner.name)">{{ currentProject.owner.initial }}</span>
+                  {{ currentProject.owner.name }}
+                </span>
+                <span><code>{{ currentProject.code }}</code></span>
+                <span>更新于 {{ relativeTime(currentProject.updated_at) }}</span>
+              </div>
+              <div class="detail-banner-actions">
+                <button class="btn btn-sm" @click="setDetailNav('kb')">📚 项目知识库</button>
+                <button class="btn btn-sm" @click="openProjectEdit">✏️ 编辑信息</button>
+                <button class="btn btn-danger btn-sm" @click="confirmDeleteProject(currentProject)">🗑️ 删除项目</button>
+              </div>
+            </div>
+          </div>
+
+          <!-- 队列状态条（H7 简化版） -->
+          <div v-if="runningJob" class="queue-bar">
+            <span class="dot busy"></span>
+            <span class="spacer">正在运行：{{ skillLabelOf(runningJob.skill) }}…</span>
+            <button class="btn btn-sm" @click="cancelRunningJob" v-if="runningJob.cancellable">取消</button>
+          </div>
+
+          <!-- 项目详情主区 -->
+          <div class="detail-layout">
+            <div class="detail-main2">
+              <!-- 概览 -->
+              <template v-if="detailNav === 'overview'">
+                <div class="dm-head">
+                  <h2>项目概览</h2>
+                  <span class="sub">基础信息、能力快捷入口、最近产物</span>
+                </div>
+
+                <div class="scenario-grid">
+                  <section class="scenario-card poster">
+                    <div class="scenario-icon">🖼️</div>
+                    <div class="scenario-main">
+                      <div class="scenario-name">海报</div>
+                      <div class="scenario-actions">
+                        <button class="scenario-action" @click="setDetailNav('copywriter')">
+                          <b>文案</b><span>{{ currentProject.stats.copywriter || 0 }} 份</span>
+                        </button>
+                        <button class="scenario-action primary" @click="setDetailNav('poster_brief')">
+                          <b>生图</b><span>{{ currentProject.stats.poster_render || 0 }} 版</span>
+                        </button>
+                      </div>
+                    </div>
+                  </section>
+                  <section class="scenario-card interview">
+                    <div class="scenario-icon">🎤</div>
+                    <div class="scenario-main">
+                      <div class="scenario-name">访谈</div>
+                      <div class="scenario-actions">
+                        <button class="scenario-action primary" @click="setDetailNav('interview_outline')">
+                          <b>访谈提纲</b><span>待完善</span>
+                        </button>
+                        <button class="scenario-action disabled">
+                          <b>纪要整理</b><span>待定</span>
+                        </button>
+                      </div>
+                    </div>
+                  </section>
+                  <section class="scenario-card report">
+                    <div class="scenario-icon">📄</div>
+                    <div class="scenario-main">
+                      <div class="scenario-name">研究报告</div>
+                      <div class="scenario-actions">
+                        <button class="scenario-action disabled">
+                          <b>报告框架</b><span>待定</span>
+                        </button>
+                        <button class="scenario-action disabled">
+                          <b>正文撰写</b><span>待定</span>
+                        </button>
+                      </div>
+                    </div>
+                  </section>
+                  <section class="scenario-card ppt">
+                    <div class="scenario-icon">📊</div>
+                    <div class="scenario-main">
+                      <div class="scenario-name">PPT</div>
+                      <div class="scenario-actions">
+                        <button class="scenario-action primary" @click="setDetailNav('ppt_outline')">
+                          <b>大纲</b><span>可用</span>
+                        </button>
+                        <button class="scenario-action disabled">
+                          <b>制作</b><span>待定</span>
+                        </button>
+                      </div>
+                    </div>
+                  </section>
+                </div>
+
+                <div class="timeline" style="margin-top:24px">
+                  <div class="tl-head">
+                    最近产物
+                    <span class="more-link" @click="setDetailNav('all_artifacts')">查看全部 ›</span>
+                  </div>
+                  <div v-if="!currentProject.artifacts || currentProject.artifacts.length === 0" class="tl-empty">
+                    还没有产物，先从上方功能模块开始
+                  </div>
+                  <div v-else>
+                    <div v-for="a in (currentProject.artifacts || []).slice(0, 6)" :key="a.id" class="tl-row">
+                      <div class="tl-icon" :class="skillIconClass(a.skill)">{{ skillIcon(a.skill) }}</div>
+                      <div class="tl-meta">
+                        <div class="tl-title">{{ a.title || a.id }}</div>
+                        <div class="tl-sub">{{ skillLabelOf(a.skill) }}{{ a.version ? ' · ' + a.version : '' }}</div>
+                      </div>
+                      <div class="tl-time">{{ relativeTime(a.created_at) }}</div>
+                    </div>
+                  </div>
+                </div>
+              </template>
+
+              <!-- 海报文案：按海报子项目生成 M1-M25 模块文案 -->
+              <template v-else-if="detailNav === 'copywriter'">
+                <div class="dm-head">
+                  <h2>海报文案
+                    <span style="font-size:13px;color:var(--text-dim);font-weight:400;margin-left:8px">基于项目知识库，按海报子项目的 M1-M25 模块生成文案草稿</span>
+                  </h2>
+                </div>
+                <div class="function-project-panel copy-project-panel">
+                  <div class="function-project-head">
+                    <div>
+                      <div class="strategy-kicker">文案目标海报子项目</div>
+                      <h3>选择要生成文案的海报模块编排</h3>
+                      <p>文案会按所选海报子项目的类型、场景和 M1-M25 模块生成；确认后可直接填入海报生图模块。</p>
+                    </div>
+                    <div class="module-autofill-actions">
+                      <button class="btn btn-sm" @click="fetchPosterFunctionProjects" :disabled="posterFunctionProjectsLoading">
+                        {{ posterFunctionProjectsLoading ? '刷新中…' : '刷新子项目' }}
+                      </button>
+                      <button class="btn btn-primary btn-sm" @click="openPosterFunctionCreate">＋ 新建海报子项目</button>
+                    </div>
+                  </div>
+                  <div v-if="posterFunctionProjectsLoading" class="function-project-empty">正在加载海报子项目…</div>
+                  <div v-else-if="posterFunctionProjects.length === 0" class="function-project-empty">
+                    还没有海报子项目。可以先新建海报子项目，或从项目知识库识别生成。
+                  </div>
+                  <div v-if="posterFunctionCreate.show" class="function-project-create visual-create">
+                    <div class="function-create-head">
+                      <b>新建海报子项目</b>
+                      <span>选择项目类型和海报场景后，自动生成对应模块编排。</span>
+                    </div>
+                    <div class="function-create-section-title">项目类型</div>
+                    <div class="function-create-types visual">
+                      <button v-for="t in posterStrategies.project_types" :key="t.id"
+                              class="function-type-visual-card"
+                              :class="{active: posterFunctionCreate.project_type === t.id}"
+                              @click.prevent="selectPosterFunctionCreateType(t.id)">
+                        <i :style="{background: posterFunctionCreateTypeMeta(t.id).tone}">{{ posterFunctionCreateTypeMeta(t.id).icon }}</i>
+                        <div>
+                          <b>{{ t.label || posterFunctionCreateTypeMeta(t.id).title }}</b>
+                          <span>{{ posterFunctionCreateTypeMeta(t.id).visual }}</span>
+                          <em>{{ t.persuasion_strategy || t.style_label || '模块策略' }}</em>
+                        </div>
+                      </button>
+                    </div>
+                    <div class="function-create-section-title">海报场景</div>
+                    <div class="function-create-scenes">
+                      <button v-for="s in allowedPosterFunctionCreateScenes()" :key="s.key"
+                              class="function-scene-visual-card"
+                              :class="{active: posterFunctionCreate.scene === s.key}"
+                              @click.prevent="selectPosterFunctionCreateScene(s.key)">
+                        <i :style="{background: posterFunctionCreateSceneMeta(s.key).color}">{{ s.key }}</i>
+                        <div>
+                          <b>{{ s.label }}</b>
+                          <span>{{ s.goal || '按该场景生成模块' }}</span>
+                        </div>
+                      </button>
+                    </div>
+                    <div class="function-create-form visual">
+                      <label>
+                        <span>子项目名称</span>
+                        <input type="text" v-model="posterFunctionCreate.name" placeholder="例如：开营通知内部版" />
+                      </label>
+                      <div class="strategy-summary" v-if="posterFunctionCreate.strategy">
+                        <b>{{ posterFunctionCreate.strategy.project_type.label }} / {{ posterFunctionCreate.strategy.scene.label }}</b>
+                        <span>{{ posterFunctionCreate.strategy.scene.goal }}</span>
+                        <em>{{ posterFunctionCreate.strategy.module_plan.length }} 个默认模块，创建后可继续增删改查。</em>
+                      </div>
+                    </div>
+                    <div class="function-create-actions">
+                      <button class="btn btn-sm" @click="cancelPosterFunctionCreate">取消</button>
+                      <button class="btn btn-primary btn-sm"
+                              :disabled="posterFunctionCreate.busy || !posterFunctionCreate.strategy"
+                              @click="createBlankPosterFunctionProject">
+                        {{ posterFunctionCreate.busy ? '创建中…' : '确认创建' }}
+                      </button>
+                    </div>
+                  </div>
+                  <template v-if="!posterFunctionProjectsLoading && posterFunctionProjects.length">
+                    <div class="function-project-bulkbar">
+                      <span>已选 {{ selectedPosterFunctionProjectIds.length }} / {{ posterFunctionProjects.length }}</span>
+                      <button class="btn btn-sm" @click="selectAllPosterFunctionProjects">全选</button>
+                      <button class="btn btn-sm" :disabled="!selectedPosterFunctionProjectIds.length" @click="clearPosterFunctionProjectSelection">取消选择</button>
+                      <button class="btn btn-danger btn-sm" :disabled="!selectedPosterFunctionProjectIds.length" @click="deleteSelectedPosterFunctionProjects">批量删除</button>
+                    </div>
+                    <div class="function-project-grid compact">
+                    <button v-for="item in posterFunctionProjects" :key="item.id"
+                            class="function-project-card"
+                            :class="{ active: currentPosterFunctionProject && currentPosterFunctionProject.id === item.id }"
+                            @click="requestLoadPosterFunctionProject(item)">
+                      <span class="function-project-select"
+                            :class="{ checked: isPosterFunctionProjectSelected(item) }"
+                            title="选择批量删除"
+                            @click.stop="togglePosterFunctionProjectSelection(item)">
+                        {{ isPosterFunctionProjectSelected(item) ? '✓' : '' }}
+                      </span>
+                      <div>
+                        <b>{{ item.name }}</b>
+                        <span>{{ item.project_type || '-' }} / {{ item.scene || '-' }} · {{ item.module_count || 0 }} 个模块</span>
+                      </div>
+                      <em>{{ relativeTime(item.updated_at) }}</em>
+                      <i>{{ currentPosterFunctionProject && currentPosterFunctionProject.id === item.id ? '文案目标' : '选择' }}</i>
+                    </button>
+                    </div>
+                  </template>
+                </div>
+
+                <div class="module-autofill-panel">
+                  <div class="module-copy-draft">
+                    <div class="module-copy-draft-head">
+                      <div>
+                        <b>文案编辑确认</b>
+                        <span>先在完整文案区从上到下阅读和修改；下方模块映射会同步作为海报生图的结构化输入。</span>
+                        <em v-if="moduleAutofill.copySavedArtifact">已保存：{{ moduleAutofill.copySavedArtifact.title }}</em>
+                      </div>
+                      <div v-if="moduleAutofill.copyDraft" class="module-autofill-actions">
+                        <button class="btn btn-sm" @click="exportModuleCopyDraftMd">导出 MD</button>
+                        <button class="btn btn-sm" @click="exportModuleCopyDraftWord">导出 Word</button>
+                        <button class="btn btn-sm" @click="clearModuleCopyDraft">清空草稿</button>
+                        <button class="btn btn-primary btn-sm"
+                                :disabled="moduleAutofill.copyApplying"
+                                @click="applyModuleCopyDraft">
+                          {{ moduleAutofill.copyApplying ? '保存中…' : '保存并填入生图模块' }}
+                        </button>
+                        <button class="btn btn-primary btn-sm"
+                                v-if="moduleAutofill.copySavedArtifact"
+                                @click="goPosterBriefAfterCopy">
+                          下一步：进入海报生图
+                        </button>
+                      </div>
+                    </div>
+                    <div class="copy-readable-layout">
+                      <section class="copy-readable-doc">
+                        <div class="copy-readable-toolbar">
+                          <div>
+                            <b>完整文案方案</b>
+                            <span>{{ moduleAutofill.copyDraft ? '面向用户阅读，可直接修改。保存时会和模块结构稿一起归档。' : '请在右侧 AI 文案助手上传资料或输入要求开始生成。' }}</span>
+                          </div>
+                          <button v-if="moduleAutofill.copyDraft" class="btn btn-sm" @click="syncCopyDraftReadableFromModules">按模块重排全文</button>
+                        </div>
+                        <label v-if="moduleAutofill.copyDraft">
+                          <span>海报主标题</span>
+                          <input type="text" v-model="moduleAutofill.copyDraft.title" />
+                        </label>
+                        <label v-if="moduleAutofill.copyDraft">
+                          <span>海报副标题</span>
+                          <input type="text" v-model="moduleAutofill.copyDraft.subtitle" />
+                        </label>
+                        <textarea v-if="moduleAutofill.copyDraft"
+                                  class="copy-readable-editor"
+                                  v-model="moduleAutofill.copyDraft.readableMarkdown"
+                                  rows="22"
+                                  placeholder="这里会生成一份从上到下可阅读的海报文案方案。表格用 Markdown 表格呈现，图片位置用【图片】占位。"></textarea>
+                        <div v-else class="copy-readable-blank"></div>
+                      </section>
+                      <aside class="copy-ai-panel">
+                        <div class="copy-ai-head">
+                          <div>
+                            <b>AI 文案助手</b>
+                            <span>对应海报：{{ moduleAutofill.copyDraft?.targetName || currentPosterFunctionProject?.name || '请先选择海报子项目' }}</span>
+                          </div>
+                          <div class="copy-ai-head-actions">
+                            <button class="mini-icon-btn" @click="copyChat.kbOpen = !copyChat.kbOpen">知识库 {{ posterCopyKbDocs.length }}</button>
+                            <button v-if="copyChat.history.length" class="mini-icon-btn" @click="clearCopyChat">清空</button>
+                          </div>
+                        </div>
+                        <div v-if="copyChat.kbOpen" class="copy-ai-kb-pop">
+                          <div class="copy-ai-kb-head">
+                            <b>海报文案知识库</b>
+                            <label class="mini-icon-btn" :class="{disabled: kb.uploading}">
+                              上传
+                              <input type="file" multiple style="display:none"
+                                     :accept="KB_ACCEPT"
+                                     @change="handleCopyAssistantFiles" />
+                            </label>
+                          </div>
+                          <div v-if="posterCopyKbDocs.length === 0" class="copy-ai-empty compact">暂无资料。支持文字、Word、PDF、PPT、Excel/CSV 和图片。</div>
+                          <div v-else class="copy-ai-kb-list">
+                            <div v-for="d in posterCopyKbDocs" :key="d.id" class="copy-ai-kb-row">
+                              <span>{{ kbIcon(d.format) }}</span>
+                              <div>
+                                <b>{{ d.filename }}</b>
+                                <em>{{ d.chunks_count || 0 }} 片段 · {{ relativeTime(d.created_at) }}</em>
+                              </div>
+                              <button class="btn-ghost" @click.stop="deleteKbDoc(d)">×</button>
+                            </div>
+                          </div>
+                        </div>
+                        <div class="copy-ai-messages" ref="copyChatMessagesEl">
+                          <div v-if="!copyChat.history.length" class="copy-ai-empty">
+                            上传文案/资料后，可以让 AI 识别已有文案，也可以直接说“基于项目知识库生成一版招募海报文案”。生成后继续用自然语言改稿。
+                          </div>
+                          <div v-for="(m, i) in copyChat.history" :key="i" class="copy-ai-bubble" :class="m.role">
+                            <b>{{ m.role === 'user' ? '你' : 'AI' }}</b>
+                            <span>{{ m.content }}</span>
+                          </div>
+                        </div>
+                        <div class="copy-ai-send">
+                          <div v-if="moduleAutofill.fileMetas.length" class="module-autofill-files in-chat">
+                            <span v-for="(f, i) in moduleAutofill.fileMetas" :key="f.id">
+                              {{ kbIcon(f.format) }} {{ f.filename }}
+                              <button @click="removeModuleAutofillFile(i)">×</button>
+                            </span>
+                          </div>
+                          <div class="copy-ai-quick-actions">
+                            <label class="btn btn-sm" :class="{disabled: moduleAutofill.running || kb.uploading}">
+                              上传文案/资料
+                              <input type="file" multiple style="display:none"
+                                     :accept="KB_ACCEPT"
+                                     @change="handleCopyAssistantFiles" />
+                            </label>
+                            <select v-model="moduleAutofill.overwriteMode" class="module-copy-mode">
+                              <option value="fill_empty">只补空模块</option>
+                              <option value="overwrite_all">生成整版草稿</option>
+                            </select>
+                            <button class="btn btn-sm"
+                                    :disabled="moduleAutofill.copyGenerating || !currentPosterFunctionProject"
+                                    @click="runModuleCopyGenerate">
+                              {{ moduleAutofill.copyGenerating ? '生成中…' : 'AI 生成模块文案' }}
+                            </button>
+                            <button class="btn btn-primary btn-sm"
+                                    :disabled="moduleAutofill.running || !moduleAutofill.files.length || !currentPosterFunctionProject"
+                                    @click="runModuleAutofill">
+                              {{ moduleAutofill.running ? '识别中…' : '识别已有文案' }}
+                            </button>
+                          </div>
+                          <textarea v-model="copyChat.input"
+                                    rows="4"
+                                    placeholder="输入文案要求，例如：基于已上传资料生成一版开班招募文案；或把当前文案改得更正式"
+                                    :disabled="copyChat.busy"
+                                    @keydown.enter.exact.prevent="sendCopyChatMessage"></textarea>
+                          <button class="btn btn-primary btn-sm"
+                                  :disabled="copyChat.busy || !copyChat.input.trim()"
+                                  @click="sendCopyChatMessage">
+                            {{ copyChat.busy ? '处理中…' : '发送' }}
+                          </button>
+                        </div>
+                      </aside>
+                    </div>
+                    <div v-if="moduleAutofill.copyDraft" class="module-copy-title-grid">
+                      <button class="copy-module-toggle" @click="moduleAutofill.copyDraft.modulesOpen = !moduleAutofill.copyDraft.modulesOpen">
+                        <b>模块结构稿</b>
+                        <span>{{ moduleAutofill.copyDraft.modulesOpen ? '收起' : '展开' }} · M1-M25 填入生图用，必要时再细改</span>
+                      </button>
+                    </div>
+                    <div v-if="moduleAutofill.copyDraft" v-show="moduleAutofill.copyDraft.modulesOpen" class="module-copy-draft-list">
+                      <div v-for="(u, ui) in moduleAutofill.copyDraft.updates" :key="ui" class="module-copy-draft-row">
+                        <div class="module-copy-row-top">
+                          <b>{{ moduleCopyDraftLabel(u) }}</b>
+                          <button class="mini-icon-btn" @click="u._open = !u._open">{{ u._open ? '收起' : '展开' }}</button>
+                        </div>
+                        <div v-show="u._open" class="module-copy-row-body">
+                          <label>
+                            <span>模块标题</span>
+                            <input type="text" v-model="u.module_title" />
+                          </label>
+                          <label>
+                            <span>正文文案</span>
+                            <textarea rows="4" v-model="u.content" placeholder="这个模块的主要正文，可继续修改"></textarea>
+                          </label>
+                          <div v-if="u._details.headers && u._details.rows" class="copy-draft-block">
+                            <div class="copy-draft-block-head">
+                              <b>表格内容</b>
+                              <div>
+                                <button class="mini-icon-btn" @click="addCopyDraftTableRow(u)">加行</button>
+                                <button class="mini-icon-btn" @click="addCopyDraftTableCol(u)">加列</button>
+                              </div>
+                            </div>
+                            <div class="copy-draft-table" :style="{gridTemplateColumns: 'repeat(' + u._details.headers.length + ', minmax(120px, 1fr)) 42px'}">
+                              <input v-for="(h, hi) in u._details.headers" :key="'h'+hi" v-model="u._details.headers[hi]" />
+                              <span></span>
+                              <template v-for="(row, ri) in u._details.rows" :key="'r'+ri">
+                                <input v-for="(h, ci) in u._details.headers" :key="ri+'-'+ci" v-model="row[ci]" />
+                                <button class="mini-icon-btn danger" @click="removeCopyDraftTableRow(u, ri)">×</button>
+                              </template>
+                            </div>
+                          </div>
+                          <div v-if="u._details.subsections && u._details.subsections.length" class="copy-draft-block">
+                            <div class="copy-draft-block-head">
+                              <b>子模块文案</b>
+                              <button class="mini-icon-btn" @click="addCopyDraftSubsection(u)">加子模块</button>
+                            </div>
+                            <div v-for="(s, si) in u._details.subsections" :key="si" class="copy-draft-subsection">
+                              <input v-model="s.title" placeholder="小标题" />
+                              <textarea v-model="s.text" rows="3" placeholder="正文"></textarea>
+                            </div>
+                          </div>
+                          <div v-if="u._details.people_groups && u._details.people_groups.length" class="copy-draft-block">
+                            <div class="copy-draft-block-head"><b>人员/头像墙</b><span>没有头像时保留【图片】占位，后续上传头像</span></div>
+                            <div v-for="(g, gi) in u._details.people_groups" :key="gi" class="copy-draft-group">
+                              <input v-model="g.title" placeholder="分组标题" />
+                              <div class="copy-draft-people">
+                                <div v-for="(p, pi) in g.items" :key="pi" class="copy-draft-person">
+                                  <div class="copy-image-placeholder">【图片】</div>
+                                  <input v-model="p.name" placeholder="姓名" />
+                                  <input v-model="p.org" placeholder="职位/组织" />
+                                </div>
+                              </div>
+                            </div>
+                          </div>
+                          <div v-if="u._details.speaker" class="copy-draft-block">
+                            <div class="copy-draft-block-head"><b>讲师/嘉宾介绍</b><span v-if="!u._details.speaker.avatar">头像待上传</span></div>
+                            <div class="copy-draft-speaker">
+                              <div class="copy-image-placeholder">【图片】</div>
+                              <div>
+                                <input v-model="u._details.speaker.name" placeholder="姓名" />
+                                <input v-model="u._details.speaker.title" placeholder="头衔/职务" />
+                              </div>
+                            </div>
+                            <div v-for="(s, si) in (u._details.speaker.sections || [])" :key="si" class="copy-draft-subsection">
+                              <input v-model="s.title" placeholder="段落标题" />
+                              <textarea v-model="s.text" rows="3" placeholder="介绍正文"></textarea>
+                            </div>
+                          </div>
+                          <div v-if="u._details.items && u._details.items.length" class="copy-draft-block">
+                            <div class="copy-draft-block-head"><b>课程/卡片内容</b><span>图片位可后续上传</span></div>
+                            <div v-for="(item, ii) in u._details.items" :key="ii" class="copy-draft-carditem">
+                              <div class="copy-image-placeholder" v-if="copyDraftNeedsImage(u)">【图片】</div>
+                              <input v-model="item.title" placeholder="卡片标题" />
+                              <textarea v-model="item.text" rows="3" placeholder="卡片正文"></textarea>
+                            </div>
+                          </div>
+                          <div v-if="u._details.actions && u._details.actions.length" class="copy-draft-block">
+                            <div class="copy-draft-block-head">
+                              <b>按钮/CTA</b>
+                              <button class="mini-icon-btn" @click="addCopyDraftAction(u)">加按钮</button>
+                            </div>
+                            <div v-for="(a, ai) in u._details.actions" :key="ai" class="copy-draft-action">
+                              <input v-model="a.text" placeholder="按钮文案" />
+                              <input v-model="a.hint" placeholder="补充说明/链接提示" />
+                            </div>
+                          </div>
+                          <div v-if="copyDraftImagePlaceholder(u)" class="copy-draft-block">
+                            <div class="copy-draft-block-head"><b>图片占位</b><span>该模块需要图片能力，当前先保留占位，后续在生图模块上传</span></div>
+                            <div class="copy-image-placeholder wide">【图片】</div>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                  <div v-if="moduleAutofill.notes.length" class="module-autofill-notes">
+                    <span v-for="n in moduleAutofill.notes" :key="n">{{ n }}</span>
+                  </div>
+                </div>
+              </template>
+
+              <!-- 海报生图能力页 -->
+              <template v-else-if="detailNav === 'poster_brief'">
+                <div class="dm-head">
+                  <h2>{{ skillLabelOf(detailNav) }}
+                    <span style="font-size:13px;color:var(--text-dim);font-weight:400;margin-left:8px">{{ skillSubOf(detailNav) }}</span>
+                  </h2>
+                  <div style="flex:1"></div>
+                  <span v-if="getSkillArtifacts(detailNav).length" class="kb-tag ok">
+                    历史 {{ getSkillArtifacts(detailNav).length }} 份
+                  </span>
+                </div>
+
+                <div class="poster-console-zone">
+                <div class="function-project-panel">
+                  <div class="function-project-head">
+                    <div>
+                      <h3>项目所含海报子项目</h3>
+                    </div>
+                    <div class="strategy-kb-actions">
+                      <button class="btn btn-sm" @click="openPosterFunctionCreate">＋ 新建海报子项目</button>
+                      <label class="btn btn-sm" :class="{disabled: kb.uploading || copyImport.visualAssetsUploading}">
+                        上传项目知识库（文件/文件夹）
+                        <input type="file" multiple webkitdirectory directory style="display:none"
+                               :accept="KB_ACCEPT"
+                               @change="handlePosterProjectKbUpload" />
+                      </label>
+                      <button class="btn btn-primary btn-sm" :disabled="kb.uploading || posterFunctionProjectsLoading" @click="recognizeCurrentProjectKb">
+                        识别生成并填写模块
+                      </button>
+                    </div>
+                  </div>
+                  <div v-if="posterFunctionCreate.show" class="function-project-create visual-create">
+                    <div class="function-create-head">
+                      <b>新建海报子项目</b>
+                      <span>选择项目类型和海报场景后，自动生成对应模块编排。</span>
+                    </div>
+                    <div class="function-create-section-title">项目类型</div>
+                    <div class="function-create-types visual">
+                      <button v-for="t in posterStrategies.project_types" :key="t.id"
+                              class="function-type-visual-card"
+                              :class="{active: posterFunctionCreate.project_type === t.id}"
+                              @click.prevent="selectPosterFunctionCreateType(t.id)">
+                        <i :style="{background: posterFunctionCreateTypeMeta(t.id).tone}">{{ posterFunctionCreateTypeMeta(t.id).icon }}</i>
+                        <div>
+                          <b>{{ t.label || posterFunctionCreateTypeMeta(t.id).title }}</b>
+                          <span>{{ posterFunctionCreateTypeMeta(t.id).visual }}</span>
+                          <em>{{ t.persuasion_strategy || t.style_label || '模块策略' }}</em>
+                        </div>
+                      </button>
+                    </div>
+                    <div class="function-create-section-title">海报场景</div>
+                    <div class="function-create-scenes">
+                      <button v-for="s in allowedPosterFunctionCreateScenes()" :key="s.key"
+                              class="function-scene-visual-card"
+                              :class="{active: posterFunctionCreate.scene === s.key}"
+                              @click.prevent="selectPosterFunctionCreateScene(s.key)">
+                        <i :style="{background: posterFunctionCreateSceneMeta(s.key).color}">{{ s.key }}</i>
+                        <div>
+                          <b>{{ s.label }}</b>
+                          <span>{{ s.goal || '按该场景生成模块' }}</span>
+                        </div>
+                      </button>
+                    </div>
+                    <div class="function-create-form visual">
+                      <label>
+                        <span>子项目名称</span>
+                        <input type="text" v-model="posterFunctionCreate.name" placeholder="例如：开营通知内部版" />
+                      </label>
+                      <div class="strategy-summary" v-if="posterFunctionCreate.strategy">
+                        <b>{{ posterFunctionCreate.strategy.project_type.label }} / {{ posterFunctionCreate.strategy.scene.label }}</b>
+                        <span>{{ posterFunctionCreate.strategy.scene.goal }}</span>
+                        <em>{{ posterFunctionCreate.strategy.module_plan.length }} 个默认模块，创建后可继续增删改查。</em>
+                      </div>
+                    </div>
+                    <div class="function-create-actions">
+                      <button class="btn btn-sm" @click="cancelPosterFunctionCreate">取消</button>
+                      <button class="btn btn-primary btn-sm"
+                              :disabled="posterFunctionCreate.busy || !posterFunctionCreate.strategy"
+                              @click="createBlankPosterFunctionProject">
+                        {{ posterFunctionCreate.busy ? '创建中…' : '确认创建' }}
+                      </button>
+                    </div>
+                  </div>
+                  <div v-if="posterFunctionProjectsLoading" class="function-project-empty">正在加载海报子项目…</div>
+                  <div v-else-if="posterFunctionProjects.length === 0" class="function-project-empty">
+                    暂无海报子项目。你可以手动新增，或上传项目知识库后点击识别生成。
+                  </div>
+                  <template v-else>
+                    <div class="function-project-bulkbar">
+                      <span>已选 {{ selectedPosterFunctionProjectIds.length }} / {{ posterFunctionProjects.length }}</span>
+                      <button class="btn btn-sm" @click="selectAllPosterFunctionProjects">全选</button>
+                      <button class="btn btn-sm" :disabled="!selectedPosterFunctionProjectIds.length" @click="clearPosterFunctionProjectSelection">取消选择</button>
+                      <button class="btn btn-danger btn-sm" :disabled="!selectedPosterFunctionProjectIds.length" @click="deleteSelectedPosterFunctionProjects">批量删除</button>
+                    </div>
+                    <div class="function-project-grid">
+                    <button v-for="item in posterFunctionProjects" :key="item.id"
+                            class="function-project-card"
+                            :class="{ active: currentPosterFunctionProject && currentPosterFunctionProject.id === item.id }"
+                            @click="requestLoadPosterFunctionProject(item)">
+                      <span class="function-project-select"
+                            :class="{ checked: isPosterFunctionProjectSelected(item) }"
+                            title="选择批量删除"
+                            @click.stop="togglePosterFunctionProjectSelection(item)">
+                        {{ isPosterFunctionProjectSelected(item) ? '✓' : '' }}
+                      </span>
+                      <div>
+                        <b>{{ item.name }}</b>
+                        <span>{{ item.project_type || '-' }} / {{ item.scene || '-' }} · {{ item.module_count || 0 }} 个模块</span>
+                      </div>
+                      <em>{{ relativeTime(item.updated_at) }}</em>
+                      <i>{{ currentPosterFunctionProject && currentPosterFunctionProject.id === item.id ? '正在编辑' : '选择编辑' }}</i>
+                      <span class="card-delete" @click.stop="deletePosterFunctionProject(item)">删除</span>
+                    </button>
+                    </div>
+                  </template>
+                </div>
+
+                <div class="strategy-card" v-if="posterStrategy">
+                  <div class="strategy-head">
+                    <div>
+                      <h3 v-if="currentPosterFunctionProject && !posterFunctionNameEditing"
+                          class="editable-strategy-title"
+                          title="点击修改海报子项目名称"
+                          @click="startPosterFunctionNameEdit">
+                        {{ currentPosterFunctionProject.name }}
+                      </h3>
+                      <input v-else-if="currentPosterFunctionProject"
+                             class="strategy-title-input"
+                             v-model="currentPosterFunctionProject.name"
+                             @blur="finishPosterFunctionNameEdit"
+                             @keyup.enter="finishPosterFunctionNameEdit"
+                             @keyup.esc="cancelPosterFunctionNameEdit" />
+                      <h3 v-else>项目类型、海报场景与模块执行计划</h3>
+                    </div>
+                  </div>
+                  <div class="strategy-controls project-locked">
+                    <label class="strategy-edit-field">
+                      <span>海报类型</span>
+                      <select v-model="posterStrategySelection.project_type" @change="handleCurrentPosterTypeChange($event.target.value)">
+                        <option v-for="t in posterStrategies.project_types" :key="t.id" :value="t.id">{{ t.label }}</option>
+                      </select>
+                    </label>
+                    <label class="strategy-edit-field">
+                      <span>海报场景</span>
+                      <select v-model="posterStrategySelection.scene" @change="handleCurrentPosterSceneChange($event.target.value)">
+                        <option v-for="s in allowedCurrentPosterScenes()" :key="s.key" :value="s.key">{{ s.label }}</option>
+                      </select>
+                    </label>
+                  </div>
+                  <div class="module-plan-list editable title-visual-list">
+                    <div v-for="m in posterStrategy.module_plan.filter(isTitleVisualModule)"
+                         :key="'title-visual-' + m.id"
+                         class="module-plan-row editable title-visual-row">
+                      <div class="module-row-top">
+                        <div class="module-main">
+                          <b><span class="inline-module-title">海报主视觉编辑区</span></b>
+                        </div>
+                        <button class="mini-icon-btn" title="展开/收起" @click="m.ui_open = !m.ui_open">{{ m.ui_open ? '收起' : '展开' }}</button>
+                      </div>
+                      <div v-show="m.ui_open" class="module-row-body" @input="markPosterPreviewDirty" @change="markPosterPreviewDirty">
+                        <div class="hero-layer-panel">
+                          <div class="hero-layer-head">
+                            <div><b>海报主视觉编辑区</b></div>
+                            <select v-model="copyImport.titleVisualMode">
+                              <option value="auto">缺什么自动生成</option>
+                              <option value="upload_first">优先使用上传素材</option>
+                              <option value="generate_all">全部用生图模型生成</option>
+                              <option value="gradient_only">只用全局渐变背景</option>
+                            </select>
+                          </div>
+                          <div class="hero-layer-grid">
+                            <label>
+                              <span>副标题文字</span>
+                              <input type="text" v-model="copyImport.subtitleText" placeholder="例如：面向新晋管理者的系统化成长项目" />
+                            </label>
+                            <label>
+                              <span>全局底图生成要求</span>
+                              <textarea v-model="copyImport.globalBgPrompt" rows="2" placeholder="整张长图底层背景：主题色渐变、几何装饰、不要文字和人物"></textarea>
+                            </label>
+                            <label>
+                              <span>头部底图生成要求</span>
+                              <textarea v-model="copyImport.heroBgPrompt" rows="2" placeholder="只放在顶部，中心留空，边缘装饰，禁止文字和人物"></textarea>
+                            </label>
+                            <label>
+                              <span>主标题艺术字要求</span>
+                              <textarea v-model="copyImport.wordartPrompt" rows="2" placeholder="根据主标题生成清晰可读的艺术字，黑底或透明底"></textarea>
+                            </label>
+                          </div>
+                          <div class="hero-layer-upload-grid">
+                            <div v-for="typ in ['global_bg','hero_bg','main_wordart','subtitle_wordart','module_frame']" :key="typ" class="hero-layer-upload">
+                              <div>
+                                <b>{{ titleLayerLabel(typ) }}</b>
+                                <span>{{ typ === 'global_bg' ? 'L1 整张海报底层' : typ === 'hero_bg' ? 'L2 顶部主视觉底图' : typ === 'main_wordart' ? 'L3 主标题图层' : typ === 'subtitle_wordart' ? '副标题图层' : '模块框素材' }}</span>
+                              </div>
+                              <label class="btn btn-sm" :class="{disabled: copyImport.visualAssetsUploading}">
+                                上传
+                                <input type="file" accept="image/*" multiple style="display:none" @change="uploadTitleVisualLayer($event, typ)" />
+                              </label>
+                              <div v-if="copyImport.visualLayerUploads[typ] && copyImport.visualLayerUploads[typ].length" class="hero-layer-chips">
+                                <div v-for="(a, ai) in copyImport.visualLayerUploads[typ]" :key="a.path" class="module-image-chip">
+                                  <img :src="a.url" />
+                                  <span>{{ a.name }}</span>
+                                  <button @click="removeTitleVisualLayer(typ, ai)">×</button>
+                                </div>
+                              </div>
+                            </div>
+                          </div>
+                          <div class="logo-layer-panel embedded">
+                            <div class="hero-layer-head">
+                              <div><b>Logo 视觉层</b></div>
+                              <div class="logo-layer-controls">
+                                <select v-model="copyImport.logoPosition">
+                                  <option value="bottom">放在底部</option>
+                                  <option value="top">放在顶部</option>
+                                  <option value="none">不显示</option>
+                                </select>
+                                <select v-model="copyImport.logoAlign">
+                                  <option value="center">居中</option>
+                                  <option value="left">左对齐</option>
+                                  <option value="right">右对齐</option>
+                                </select>
+                                <label class="inline-field">高 <input type="number" min="24" max="160" step="4" v-model.number="copyImport.logoHeight" /></label>
+                                <label class="inline-field">间距 <input type="number" min="0" max="220" step="8" v-model.number="copyImport.logoGap" /></label>
+                              </div>
+                            </div>
+                            <div class="hero-layer-upload">
+                              <div>
+                                <b>上传 Logo</b>
+                                <span>支持黑/白/彩色 Logo，渲染时作为透明 Logo 条放置</span>
+                              </div>
+                              <label class="btn btn-sm" :class="{disabled: copyImport.visualAssetsUploading}">
+                                上传 Logo
+                                <input type="file" accept="image/*" multiple style="display:none" @change="uploadTitleVisualLayer($event, 'logo_color')" />
+                              </label>
+                              <div v-if="copyImport.visualLayerUploads.logo_color && copyImport.visualLayerUploads.logo_color.length" class="hero-layer-chips">
+                                <div v-for="(a, ai) in copyImport.visualLayerUploads.logo_color" :key="a.path" class="module-image-chip">
+                                  <img :src="a.url" />
+                                  <span>{{ a.name }}</span>
+                                  <button @click="removeTitleVisualLayer('logo_color', ai)">×</button>
+                                </div>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                  <div class="module-toolbar">
+                    <div>
+                      <b>模块编排</b>
+                    </div>
+                    <div class="module-add">
+                      <select v-model="moduleAddKey">
+                        <option value="">新增自定义模块</option>
+                        <option v-for="m in allModuleOptions()" :key="m.script_key" :value="m.script_key">
+                          {{ moduleDisplayName(m) }}
+                        </option>
+                      </select>
+                      <button class="btn btn-sm" @click="addStrategyModule">＋ 添加模块</button>
+                      <button class="btn btn-primary btn-sm" @click="saveProjectPosterStrategy">保存模块编排</button>
+                    </div>
+                  </div>
+                  <div class="module-plan-list editable">
+                    <div v-for="(m, idx) in posterStrategy.module_plan"
+                         :key="m.id + '-' + idx"
+                         class="module-plan-row editable"
+                         :class="{ 'title-visual-row': isTitleVisualModule(m) }"
+                         v-show="!isLogoVisualModule(m) && !isTitleVisualModule(m)">
+                      <div class="module-row-top">
+                        <div class="module-main">
+                          <b>
+                            <span v-if="!m.ui_title_editing"
+                                  class="inline-module-title"
+                                  title="点击修改模块标题"
+                                  @click.stop="startModuleTitleEdit(m)">
+                              {{ moduleTitleLabel(m) }}
+                            </span>
+                            <input v-else
+                                   class="inline-module-title-input"
+                                   v-model="m.module_config.module_title"
+                                   @blur="finishModuleTitleEdit(m)"
+                                   @keyup.enter="finishModuleTitleEdit(m)"
+                                   @keyup.esc="cancelModuleTitleEdit(m)" />
+                            <em v-if="!isTitleVisualModule(m)" class="module-code-label">{{ moduleTypeCodeLabel(m) }}</em>
+                          </b>
+                        </div>
+                        <button v-if="!isTitleVisualModule(m)" class="mini-icon-btn" title="上移" @click="moveStrategyModule(idx, -1)" :disabled="idx===0">↑</button>
+                        <button v-if="!isTitleVisualModule(m)" class="mini-icon-btn" title="下移" @click="moveStrategyModule(idx, 1)" :disabled="idx===posterStrategy.module_plan.length-1">↓</button>
+                        <button class="mini-icon-btn" title="展开/收起" @click="m.ui_open = !m.ui_open">{{ m.ui_open ? '收起' : '展开' }}</button>
+                        <button v-if="!isTitleVisualModule(m) && !isLogoVisualModule(m)" class="mini-icon-btn danger" title="删除模块" @click="removeStrategyModule(idx)">×</button>
+                      </div>
+                      <div v-show="m.ui_open" class="module-row-body" @input="markPosterPreviewDirty" @change="markPosterPreviewDirty">
+                      <div v-if="isTitleVisualModule(m)" class="hero-layer-panel">
+                        <div class="hero-layer-head">
+                          <div>
+                            <b>海报主视觉编辑区</b>
+                          </div>
+                          <select v-model="copyImport.titleVisualMode">
+                            <option value="auto">缺什么自动生成</option>
+                            <option value="upload_first">优先使用上传素材</option>
+                            <option value="generate_all">全部用生图模型生成</option>
+                            <option value="gradient_only">只用全局渐变背景</option>
+                          </select>
+                        </div>
+                        <div class="hero-layer-grid">
+                          <label>
+                            <span>副标题文字</span>
+                            <input type="text" v-model="copyImport.subtitleText" placeholder="例如：面向新晋管理者的系统化成长项目" />
+                          </label>
+                          <label>
+                            <span>全局底图生成要求</span>
+                            <textarea v-model="copyImport.globalBgPrompt" rows="2" placeholder="整张长图底层背景：主题色渐变、几何装饰、不要文字和人物"></textarea>
+                          </label>
+                          <label>
+                            <span>头部底图生成要求</span>
+                            <textarea v-model="copyImport.heroBgPrompt" rows="2" placeholder="只放在顶部，中心留空，边缘装饰，禁止文字和人物"></textarea>
+                          </label>
+                          <label>
+                            <span>主标题艺术字要求</span>
+                            <textarea v-model="copyImport.wordartPrompt" rows="2" placeholder="根据主标题生成清晰可读的艺术字，黑底或透明底"></textarea>
+                          </label>
+                        </div>
+                        <div class="hero-layer-upload-grid">
+                          <div v-for="typ in ['global_bg','hero_bg','main_wordart','subtitle_wordart','module_frame']" :key="typ" class="hero-layer-upload">
+                            <div>
+                              <b>{{ titleLayerLabel(typ) }}</b>
+                              <span>{{ typ === 'global_bg' ? 'L1 整张海报底层' : typ === 'hero_bg' ? 'L2 顶部主视觉底图' : typ === 'main_wordart' ? 'L3 主标题图层' : typ === 'subtitle_wordart' ? '副标题图层' : '模块框素材' }}</span>
+                            </div>
+                            <label class="btn btn-sm" :class="{disabled: copyImport.visualAssetsUploading}">
+                              上传
+                              <input type="file" accept="image/*" multiple style="display:none" @change="uploadTitleVisualLayer($event, typ)" />
+                            </label>
+                            <div v-if="copyImport.visualLayerUploads[typ] && copyImport.visualLayerUploads[typ].length" class="hero-layer-chips">
+                              <div v-for="(a, ai) in copyImport.visualLayerUploads[typ]" :key="a.path" class="module-image-chip">
+                                <img :src="a.url" />
+                                <span>{{ a.name }}</span>
+                                <button @click="removeTitleVisualLayer(typ, ai)">×</button>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                        <div class="logo-layer-panel embedded">
+                          <div class="hero-layer-head">
+                            <div>
+                              <b>Logo 视觉层</b>
+                            </div>
+                            <div class="logo-layer-controls">
+                              <select v-model="copyImport.logoPosition">
+                                <option value="bottom">放在底部</option>
+                                <option value="top">放在顶部</option>
+                                <option value="none">不显示</option>
+                              </select>
+                              <select v-model="copyImport.logoAlign">
+                                <option value="center">居中</option>
+                                <option value="left">左对齐</option>
+                                <option value="right">右对齐</option>
+                              </select>
+                              <label class="inline-field">高 <input type="number" min="24" max="160" step="4" v-model.number="copyImport.logoHeight" /></label>
+                              <label class="inline-field">间距 <input type="number" min="0" max="220" step="8" v-model.number="copyImport.logoGap" /></label>
+                            </div>
+                          </div>
+                          <div class="hero-layer-upload">
+                            <div>
+                              <b>上传 Logo</b>
+                              <span>支持黑/白/彩色 Logo，渲染时作为透明 Logo 条放置</span>
+                            </div>
+                            <label class="btn btn-sm" :class="{disabled: copyImport.visualAssetsUploading}">
+                              上传 Logo
+                              <input type="file" accept="image/*" multiple style="display:none" @change="uploadTitleVisualLayer($event, 'logo_color')" />
+                            </label>
+                            <div v-if="copyImport.visualLayerUploads.logo_color && copyImport.visualLayerUploads.logo_color.length" class="hero-layer-chips">
+                              <div v-for="(a, ai) in copyImport.visualLayerUploads.logo_color" :key="a.path" class="module-image-chip">
+                                <img :src="a.url" />
+                                <span>{{ a.name }}</span>
+                                <button @click="removeTitleVisualLayer('logo_color', ai)">×</button>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                      <div v-if="!isTitleVisualModule(m) && !isLogoVisualModule(m)" class="module-content-field primary-content-field">
+                        <span>模块输入内容</span>
+                        <div class="rich-toolbar compact-toolbar">
+                          <select v-model="m.module_config.font_family" @change="setRichFontFamily(m.module_config, $event.target.value)">
+                            <option v-for="f in MODULE_FONT_OPTIONS" :key="f.value" :value="f.value">{{ f.label }}</option>
+                          </select>
+                          <input type="number" min="18" max="72" step="1" v-model.number="m.module_config.font_size" title="字号" @change="setRichFontSize(m.module_config, $event.target.value)" />
+                          <button :class="{active:m.module_config.font_weight==='bold'}" @mousedown.prevent="setRichToggle(m.module_config, 'font_weight', 'bold', 'regular')">B</button>
+                          <button :class="{active:m.module_config.font_style==='italic'}" @mousedown.prevent="setRichToggle(m.module_config, 'font_style', 'italic', 'normal')"><i>I</i></button>
+                          <button :class="{active:m.module_config.text_decoration==='underline'}" @mousedown.prevent="setRichToggle(m.module_config, 'text_decoration', 'underline', 'none')"><u>U</u></button>
+                          <select v-model="m.module_config.text_align" @change="setRichAlign(m.module_config, $event.target.value)">
+                            <option value="left">左对齐</option>
+                            <option value="center">居中</option>
+                            <option value="right">右对齐</option>
+                          </select>
+                          <input type="number" min="1" max="2.4" step="0.05" v-model.number="m.module_config.line_height" title="行距" />
+                          <input type="number" min="0" max="60" step="2" v-model.number="m.module_config.paragraph_spacing" title="段距" />
+                          <button class="color-select-trigger compact" @click.prevent="toggleModuleColorPicker(m, 'text_color')">
+                            <i :style="{background: colorOptionStyle(m.module_config.text_color)}"></i>
+                            {{ colorOptionLabel(m.module_config.text_color) }}
+                          </button>
+                        </div>
+                        <div v-if="m.ui_color_picker === 'text_color'" class="wps-color-popover rich-popover">
+                          <div class="wps-color-panel">
+                            <button v-for="c in MODULE_TEXT_COLORS" :key="c.value"
+                                    class="wps-color-btn"
+                                    :class="{active: m.module_config.text_color === c.value, auto: c.value === 'auto'}"
+                                    :title="c.label"
+                                    :style="{background: c.color}"
+                                    @click.prevent="setModuleColor(m, 'text_color', c.value)">
+                              <span v-if="c.value === 'auto'">A</span>
+                            </button>
+                          </div>
+                        </div>
+                        <div @click.capture="($event.target.closest('.rich-image-resizer') && selectRichImage($event.target.closest('.rich-image-resizer')))" class="rich-editor primary tiptap-host"
+                             v-rich-editor-init="{ target: m.module_config, key: 'content', slot: 'body' }"
+                             data-rich-slot="body"
+                                 tabindex="0"
+                                 contenteditable="false"
+                             :style="textEditorStyle(m.module_config)"
+                             data-placeholder="填写这个模块必须使用的原文、要点、表格说明、讲师信息或报名信息。未填写时由知识库/文案生成补全。"
+                                 @focus="activateRichEditor($event, m.module_config, 'content', 'body')"
+                                 @click="activateRichEditor($event, m.module_config, 'content', 'body')"
+                                 @mouseup="saveRichSelection($event)"
+                                 @keyup="saveRichSelection($event)"
+                                 @keydown="handleRichEditorKeydown($event)"
+                             @input="syncEditableText(m.module_config, 'content', $event)"></div>
+                        <template v-if="!isTitleVisualModule(m) && !isLogoVisualModule(m)">
+                          <div class="structured-actions merged-submodule-actions">
+                            <button class="btn btn-sm" @click="addTextSubsection(m)">＋ 添加文字子模块</button>
+                            <button v-if="specialModuleKind(m) === 'text_panel'" class="btn btn-sm" @click="addTextListItem(m)">＋ 添加名单/条目</button>
+                          </div>
+                          <div v-for="(sec, si) in m.module_config.subsections" :key="'merged-text-sec-' + si" class="structured-block compact merged-text-submodule">
+                            <div class="structured-row top">
+                              <div @click.capture="($event.target.closest('.rich-image-resizer') && selectRichImage($event.target.closest('.rich-image-resizer')))" class="rich-editor title tiptap-host"
+                                   v-rich-editor-init="{ target: sec, key: 'title', slot: 'title' }"
+                                   data-rich-slot="title"
+                                   tabindex="0"
+                                   contenteditable="false"
+                                   :style="subTitleEditorStyle(m.module_config)"
+                                   data-placeholder="子模块小标题"
+                                 @focus="activateRichEditor($event, sec, 'title', 'title')"
+                                 @click="activateRichEditor($event, sec, 'title', 'title')"
+                                 @mouseup="saveRichSelection($event)"
+                                 @keyup="saveRichSelection($event)"
+                                 @keydown="handleRichEditorKeydown($event)"
+                                   @input="syncEditableText(sec, 'title', $event)"></div>
+                              <label class="inline-upload-btn">
+                                上传图片
+                                <input type="file" accept="image/*" multiple style="display:none" @change="uploadModuleImageForTarget($event, m, sec, 'image')" />
+                              </label>
+                              <button class="mini-icon-btn danger" @click="removeTextSubsection(m, si)">×</button>
+                            </div>
+                            <div v-if="(sec.images && sec.images.length) || sec.image" class="module-image-list merged-image-list">
+                              <div v-for="(img, ii) in (sec.images && sec.images.length ? sec.images : [{path:sec.image, name:(sec.image || '').split('/').pop()}])" :key="img.path || ii" class="module-image-chip merged-image-chip">
+                                <img :src="img.url || ('/api/skill-asset?path=' + encodeURIComponent(img.path))" />
+                                <span>{{ img.name || (img.path || '').split('/').pop() }}</span>
+                                <button @click="(sec.images || []).splice(ii,1); if (sec.image === img.path) sec.image = (sec.images && sec.images[0] && sec.images[0].path) || ''; markPosterPreviewDirty()">×</button>
+                              </div>
+                            </div>
+                            <div @click.capture="($event.target.closest('.rich-image-resizer') && selectRichImage($event.target.closest('.rich-image-resizer')))" class="rich-editor small tiptap-host"
+                                 v-rich-editor-init="{ target: sec, key: 'text', slot: 'body' }"
+                                 data-rich-slot="body"
+                                 tabindex="0"
+                                 contenteditable="false"
+                                 :style="textEditorStyle(m.module_config)"
+                                 data-placeholder="填写子模块正文，严格使用原文，不要总结改写"
+                                 @focus="activateRichEditor($event, sec, 'text', 'body')"
+                                 @click="activateRichEditor($event, sec, 'text', 'body')"
+                                 @mouseup="saveRichSelection($event)"
+                                 @keyup="saveRichSelection($event)"
+                                 @keydown="handleRichEditorKeydown($event)"
+                                 @input="syncEditableText(sec, 'text', $event)"></div>
+                          </div>
+                          <div v-if="m.module_config.list_items && m.module_config.list_items.length" class="structured-block compact merged-text-submodule">
+                            <div class="visual-preview-title">名单/条目</div>
+                            <div v-for="(item, li) in m.module_config.list_items" :key="'merged-list-' + li" class="structured-row">
+                              <input v-model="m.module_config.list_items[li]" placeholder="姓名 / 部门 / 说明" />
+                              <button class="mini-icon-btn danger" @click="removeTextListItem(m, li)">×</button>
+                            </div>
+                          </div>
+                        </template>
+                      </div>
+                      <div v-if="!isTitleVisualModule(m) && !isLogoVisualModule(m)" class="module-appearance-panel">
+                        <div class="appearance-head collapsible-head" @click="m.ui_appearance_open = !m.ui_appearance_open">
+                          <b>模块外观</b>
+                          <button class="mini-icon-btn" @click.stop="m.ui_appearance_open = !m.ui_appearance_open">{{ m.ui_appearance_open ? '收起' : '展开' }}</button>
+                        </div>
+                        <template v-if="m.ui_appearance_open">
+                        <div class="appearance-grid appearance-control-grid">
+                          <label class="module-title-toggle appearance-title-toggle">
+                            <input type="checkbox" v-model="m.module_config.title_enabled" />
+                            <span>显示标题</span>
+                          </label>
+                          <label class="appearance-color-field">
+                            <span>模块底框</span>
+                            <select v-model="m.module_config.module_frame_mode">
+                              <option value="generated">PIL 自动生成</option>
+                              <option value="upload">使用上传素材</option>
+                              <option value="none">不显示底框</option>
+                            </select>
+                          </label>
+                          <label class="appearance-color-field">
+                            <span>下划线颜色</span>
+                            <button class="color-select-trigger" @click.prevent="toggleModuleColorPicker(m, 'underline_color')">
+                              <i :style="{background: colorOptionStyle(m.module_config.underline_color)}"></i>
+                              {{ colorOptionLabel(m.module_config.underline_color) }}
+                            </button>
+                            <div v-if="m.ui_color_picker === 'underline_color'" class="wps-color-popover">
+                              <div class="wps-color-panel">
+                                <button v-for="c in MODULE_UNDERLINE_COLORS" :key="c.value"
+                                        class="wps-color-btn"
+                                        :class="{active: m.module_config.underline_color === c.value, auto: c.value === 'auto'}"
+                                        :title="c.label"
+                                        :style="{background: c.color}"
+                                        @click.prevent="setModuleColor(m, 'underline_color', c.value)">
+                                  <span v-if="c.value === 'auto'">A</span>
+                                </button>
+                              </div>
+                            </div>
+                          </label>
+                          <label class="appearance-color-field">
+                            <span>模块底色</span>
+                            <button class="color-select-trigger" @click.prevent="toggleModuleColorPicker(m, 'panel_fill')">
+                              <i :style="{background: colorOptionStyle(m.module_config.panel_fill)}"></i>
+                              {{ colorOptionLabel(m.module_config.panel_fill) }}
+                            </button>
+                            <div v-if="m.ui_color_picker === 'panel_fill'" class="wps-color-popover">
+                              <div class="wps-color-panel">
+                                <button v-for="c in MODULE_PANEL_COLORS" :key="c.value"
+                                        class="wps-color-btn"
+                                        :class="{active: m.module_config.panel_fill === c.value, auto: c.value === 'auto'}"
+                                        :title="c.label"
+                                        :style="{background: c.color}"
+                                        @click.prevent="setModuleColor(m, 'panel_fill', c.value)">
+                                  <span v-if="c.value === 'auto'">A</span>
+                                </button>
+                              </div>
+                            </div>
+                          </label>
+                          <label class="appearance-color-field">
+                            <span>边缘线颜色</span>
+                            <button class="color-select-trigger" @click.prevent="toggleModuleColorPicker(m, 'panel_border')">
+                              <i :style="{background: colorOptionStyle(m.module_config.panel_border)}"></i>
+                              {{ colorOptionLabel(m.module_config.panel_border) }}
+                            </button>
+                            <div v-if="m.ui_color_picker === 'panel_border'" class="wps-color-popover">
+                              <div class="wps-color-panel">
+                                <button v-for="c in MODULE_BORDER_COLORS" :key="c.value"
+                                        class="wps-color-btn"
+                                        :class="{active: m.module_config.panel_border === c.value, auto: c.value === 'auto'}"
+                                        :title="c.label"
+                                        :style="{background: c.color}"
+                                        @click.prevent="setModuleColor(m, 'panel_border', c.value)">
+                                  <span v-if="c.value === 'auto'">A</span>
+                                </button>
+                              </div>
+                            </div>
+                          </label>
+                          <label>
+                            <span>标题装饰位置</span>
+                            <select v-model="m.module_config.title_decoration_position">
+                              <option value="left">标题左侧</option>
+                              <option value="right">标题右侧</option>
+                            </select>
+                          </label>
+                          <label>
+                            <span>装饰尺寸</span>
+                            <input type="number" min="18" max="96" step="2" v-model.number="m.module_config.title_decoration_size" />
+                          </label>
+                        </div>
+                        <div class="appearance-upload-row">
+                          <div class="appearance-upload-card">
+                            <b>模块底框素材</b>
+                            <span v-if="m.module_config.module_frame_path">已绑定素材框</span>
+                            <label class="inline-upload-btn">
+                              上传底框
+                              <input type="file" accept="image/*" style="display:none" @change="uploadModuleImageForTarget($event, m, m.module_config, 'module_frame_path')" />
+                            </label>
+                            <button v-if="m.module_config.module_frame_path" class="mini-icon-btn" @click="m.module_config.module_frame_path=''; if (m.module_config.module_frame_mode === 'upload') m.module_config.module_frame_mode='generated'; markPosterPreviewDirty()">清除</button>
+                          </div>
+                          <div class="appearance-upload-card">
+                            <b>标题装饰小素材</b>
+                            <span v-if="m.module_config.title_decoration_path">已绑定标题装饰</span>
+                            <label class="inline-upload-btn">
+                              上传装饰
+                              <input type="file" accept="image/*" style="display:none" @change="uploadModuleImageForTarget($event, m, m.module_config, 'title_decoration_path')" />
+                            </label>
+                          </div>
+                        </div>
+                        </template>
+                      </div>
+                      <div v-if="isStructuredModule(m) && !['text_panel','plain_text','contact_text'].includes(specialModuleKind(m))" class="structured-module-editor">
+                        <div class="structured-head">
+                          <div>
+                            <b>结构化编辑</b>
+                            <span>复杂模块可直接编辑分组、子模块、图片、评分项和 CTA</span>
+                          </div>
+                          <span class="module-pill impl ready">{{ moduleComponentLabel(m) }}</span>
+                        </div>
+
+                        <template v-if="specialModuleKind(m) === 'faculty_lineup'">
+                          <div class="visual-mode-switch">
+                            <button :class="{active: m.module_config.faculty_mode === 'avatar_wall'}" @click="m.module_config.faculty_mode = 'avatar_wall'">多人头像墙</button>
+                            <button :class="{active: m.module_config.faculty_mode === 'speaker_card'}" @click="m.module_config.faculty_mode = 'speaker_card'">单讲师深度卡</button>
+                            <button :class="{active: m.module_config.faculty_mode === 'mixed'}" @click="m.module_config.faculty_mode = 'mixed'">混合展示</button>
+                          </div>
+
+                          <div v-if="['avatar_wall','mixed'].includes(m.module_config.faculty_mode)" class="visual-preview-panel">
+                            <div class="visual-preview-title">多人头像墙</div>
+                            <div v-for="(g, gi) in m.module_config.submodules" :key="gi" class="structured-block">
+                              <div class="structured-row top">
+                                <input v-model="g.title" placeholder="子模块标题，例如 导师团 / 分享嘉宾" />
+                                <label class="inline-field">每行
+                                  <input type="number" min="2" max="5" v-model.number="g.columns" />
+                                </label>
+                                <button class="mini-icon-btn danger" @click="removeAvatarGroup(m, gi)">×</button>
+                              </div>
+                              <div class="faculty-card-grid" :style="{gridTemplateColumns: `repeat(${Math.min(Math.max(g.columns || 3, 2), 5)}, minmax(120px, 1fr))`}">
+                                <div v-for="(p, pi) in g.items" :key="pi" class="faculty-mini-card">
+                                  <div class="avatar-picker">
+                                    <img v-if="p.avatar" :src="'/api/skill-asset?path=' + encodeURIComponent(p.avatar)" />
+                                    <span v-else>头像</span>
+                                  </div>
+                                  <label class="inline-upload-btn">
+                                    上传头像
+                                    <input type="file" accept="image/*" style="display:none" @change="uploadModuleImageForTarget($event, m, p, 'avatar')" />
+                                  </label>
+                                  <select v-model="p.avatar">
+                                    <option value="">选择头像</option>
+                                    <option v-for="img in moduleImageOptions(m)" :key="img.path" :value="img.path">{{ img.name }}</option>
+                                  </select>
+                                  <input v-model="p.name" placeholder="姓名/英文名" />
+                                  <input v-model="p.org" placeholder="职位/部门/身份" />
+                                  <button class="mini-icon-btn danger" @click="removeAvatarPerson(g, pi)">×</button>
+                                </div>
+                              </div>
+                              <button class="btn btn-sm" @click="addAvatarPerson(g)">＋ 添加讲师/嘉宾</button>
+                            </div>
+                            <button class="btn btn-sm" @click="addAvatarGroup(m)">＋ 添加讲师分组</button>
+                          </div>
+
+                          <div v-if="['speaker_card','mixed'].includes(m.module_config.faculty_mode)" class="visual-preview-panel speaker">
+                            <div class="visual-preview-title">单讲师深度卡</div>
+                            <div class="speaker-visual-card">
+                              <div class="speaker-photo-col">
+                                <div class="speaker-photo">
+                                  <img v-if="m.module_config.speaker.avatar" :src="'/api/skill-asset?path=' + encodeURIComponent(m.module_config.speaker.avatar)" />
+                                  <span v-else>讲师照片</span>
+                                </div>
+                                <label class="inline-upload-btn">
+                                  上传讲师照片
+                                  <input type="file" accept="image/*" style="display:none" @change="uploadModuleImageForTarget($event, m, m.module_config.speaker, 'avatar')" />
+                                </label>
+                                <select v-model="m.module_config.speaker.avatar">
+                                  <option value="">选择头像/照片</option>
+                                  <option v-for="img in moduleImageOptions(m)" :key="img.path" :value="img.path">{{ img.name }}</option>
+                                </select>
+                              </div>
+                              <div class="speaker-info-col">
+                                <div class="structured-row top">
+                                  <input v-model="m.module_config.speaker.name" placeholder="讲师姓名" />
+                                  <input v-model="m.module_config.speaker.title" placeholder="头衔/职务/机构" />
+                                  <select v-model="m.module_config.layout">
+                                    <option value="left_image_right_text">左图右文</option>
+                                    <option value="right_image_left_text">右图左文</option>
+                                    <option value="top_image_bottom_text">上图下文</option>
+                                  </select>
+                                </div>
+                                <div v-for="(sec, si) in m.module_config.speaker.sections" :key="si" class="speaker-section-row">
+                                  <input v-model="sec.title" placeholder="段落标题，如 经历背景" />
+                                  <div @click.capture="($event.target.closest('.rich-image-resizer') && selectRichImage($event.target.closest('.rich-image-resizer')))" class="rich-editor mini tiptap-host"
+                                       v-rich-editor-init="{ target: sec, key: 'text', slot: 'body' }"
+                                       data-rich-slot="body"
+                                 tabindex="0"
+                                 contenteditable="false"
+                                       :style="textEditorStyle(m.module_config)"
+                                       data-placeholder="按原文填写经历、头衔、研究方向、课程亮点等"
+                                 @focus="activateRichEditor($event, sec, 'text', 'body')"
+                                 @click="activateRichEditor($event, sec, 'text', 'body')"
+                                 @mouseup="saveRichSelection($event)"
+                                 @keyup="saveRichSelection($event)"
+                                 @keydown="handleRichEditorKeydown($event)"
+                                       @input="syncEditableText(sec, 'text', $event)"></div>
+                                  <button class="mini-icon-btn danger" @click="removeSpeakerSection(m, si)">×</button>
+                                </div>
+                                <button class="btn btn-sm" @click="addSpeakerSection(m)">＋ 添加介绍段落</button>
+                              </div>
+                            </div>
+                          </div>
+                        </template>
+
+                        <template v-else-if="specialModuleKind(m) === 'course_list'">
+                          <div v-for="(it, ii) in m.module_config.items" :key="ii" class="structured-block">
+                            <div class="structured-row top">
+                              <input v-model="it.title" placeholder="课程/讲师小标题" />
+                              <select v-model="it.layout">
+                                <option value="left_image_right_text">左图右文</option>
+                                <option value="right_image_left_text">右图左文</option>
+                                <option value="top_image_bottom_text">上图下文</option>
+                                <option value="bottom_image_top_text">下图上文</option>
+                              </select>
+                              <button class="mini-icon-btn danger" @click="removeCourseItem(m, ii)">×</button>
+                            </div>
+                            <div class="structured-row">
+                              <select v-model="it.image">
+                                <option value="">选择配图</option>
+                                <option v-for="img in moduleImageOptions(m)" :key="img.path" :value="img.path">{{ img.name }}</option>
+                              </select>
+                              <label class="inline-upload-btn">
+                                上传配图
+                                <input type="file" accept="image/*" style="display:none" @change="uploadModuleImageForTarget($event, m, it, 'image')" />
+                              </label>
+                              <button class="btn btn-sm" @click="addAction(it)">＋ CTA</button>
+                            </div>
+                            <div @click.capture="($event.target.closest('.rich-image-resizer') && selectRichImage($event.target.closest('.rich-image-resizer')))" class="rich-editor small tiptap-host"
+                                 v-rich-editor-init="{ target: it, key: 'text', slot: 'body' }"
+                                 data-rich-slot="body"
+                                 tabindex="0"
+                                 contenteditable="false"
+                                 :style="textEditorStyle(m.module_config)"
+                                 data-placeholder="填写该课程/讲师/子模块必须使用的原文内容"
+                                 @focus="activateRichEditor($event, it, 'text', 'body')"
+                                 @click="activateRichEditor($event, it, 'text', 'body')"
+                                 @mouseup="saveRichSelection($event)"
+                                 @keyup="saveRichSelection($event)"
+                                 @keydown="handleRichEditorKeydown($event)"
+                                 @input="syncEditableText(it, 'text', $event)"></div>
+                            <div v-if="it.actions && it.actions.length" class="action-list-editor">
+                              <div v-for="(a, ai) in it.actions" :key="ai" class="structured-row">
+                                <input v-model="a.text" placeholder="按钮文字" />
+                                <select v-model="a.placement">
+                                  <option value="inside_bottom_center">模块内底部居中</option>
+                                  <option value="inside_bottom_left">模块内左下</option>
+                                  <option value="inside_bottom_right">模块内右下</option>
+                                </select>
+                                <input v-model="a.color" placeholder="颜色，可空" />
+                                <button class="mini-icon-btn danger" @click="removeAction(it, ai)">×</button>
+                              </div>
+                            </div>
+                          </div>
+                          <button class="btn btn-sm" @click="addCourseItem(m)">＋ 添加课程/讲师子模块</button>
+                        </template>
+
+                        <template v-else-if="specialModuleKind(m) === 'feedback_flow'">
+                          <div class="structured-actions">
+                            <button class="btn btn-sm" @click="addFeedbackSubmodule(m, 'rating_bars')">＋ 评分子块</button>
+                            <button class="btn btn-sm" @click="addFeedbackSubmodule(m, 'image_text_split')">＋ 图文反馈子块</button>
+                            <button class="btn btn-sm" @click="addFeedbackSubmodule(m, 'image_grid')">＋ 图片成果子块</button>
+                          </div>
+                          <div v-for="(sub, si) in m.module_config.submodules" :key="si" class="structured-block">
+                            <div class="structured-row top">
+                              <input v-model="sub.title" placeholder="子模块小标题" />
+                              <select v-model="sub.layout_form">
+                                <option value="rating_bars">评分条</option>
+                                <option value="image_text_split">图文反馈</option>
+                                <option value="image_grid">图片网格</option>
+                              </select>
+                              <button class="mini-icon-btn danger" @click="removeFeedbackSubmodule(m, si)">×</button>
+                            </div>
+                            <template v-if="sub.layout_form === 'rating_bars'">
+                              <div v-for="(ri, rix) in sub.items" :key="rix" class="structured-row">
+                                <input v-model="ri.label" placeholder="评分项" />
+                                <input type="number" step="0.1" v-model.number="ri.score" placeholder="分数" />
+                                <input type="number" step="0.1" v-model.number="ri.max" placeholder="满分" />
+                                <button class="mini-icon-btn danger" @click="removeRatingItem(sub, rix)">×</button>
+                              </div>
+                              <button class="btn btn-sm" @click="addRatingItem(sub)">＋ 添加评分项</button>
+                            </template>
+                            <template v-else-if="sub.layout_form === 'image_grid'">
+                              <div class="structured-row">
+                                <label class="inline-field">列数 <input type="number" min="1" max="4" v-model.number="sub.columns" /></label>
+                                <label class="inline-field">图片比例 <input type="number" step="0.05" min="0.3" max="1.4" v-model.number="sub.aspect_ratio" /></label>
+                              </div>
+                              <div class="image-pick-grid">
+                                <label v-for="img in moduleImageOptions(m)" :key="img.path">
+                                  <input type="checkbox" :value="img" v-model="sub.images" />
+                                  <span>{{ img.name }}</span>
+                                </label>
+                              </div>
+                            </template>
+                            <template v-else>
+                              <div class="structured-row">
+                                <select v-model="sub.layout">
+                                  <option value="left_image_right_text">左图右文</option>
+                                  <option value="right_image_left_text">右图左文</option>
+                                  <option value="top_image_bottom_text">上图下文</option>
+                                  <option value="bottom_image_top_text">下图上文</option>
+                                </select>
+                                <select v-model="sub.image">
+                                  <option value="">选择配图</option>
+                                  <option v-for="img in moduleImageOptions(m)" :key="img.path" :value="img.path">{{ img.name }}</option>
+                                </select>
+                                <label class="inline-upload-btn">
+                                  上传配图
+                                  <input type="file" accept="image/*" style="display:none" @change="uploadModuleImageForTarget($event, m, sub, 'image')" />
+                                </label>
+                                <button class="btn btn-sm" @click="addAction(sub)">＋ CTA</button>
+                              </div>
+                              <div @click.capture="($event.target.closest('.rich-image-resizer') && selectRichImage($event.target.closest('.rich-image-resizer')))" class="rich-editor small tiptap-host"
+                                   v-rich-editor-init="{ target: sub, key: 'text', slot: 'body' }"
+                                   data-rich-slot="body"
+                                 tabindex="0"
+                                 contenteditable="false"
+                                   :style="textEditorStyle(m.module_config)"
+                                   data-placeholder="填写这个反馈子块必须使用的原文内容"
+                                 @focus="activateRichEditor($event, sub, 'text', 'body')"
+                                 @click="activateRichEditor($event, sub, 'text', 'body')"
+                                 @mouseup="saveRichSelection($event)"
+                                 @keyup="saveRichSelection($event)"
+                                 @keydown="handleRichEditorKeydown($event)"
+                                   @input="syncEditableText(sub, 'text', $event)"></div>
+                            </template>
+                          </div>
+                        </template>
+
+                        <template v-else-if="specialModuleKind(m) === 'rating_bars'">
+                          <div v-for="(ri, rix) in m.module_config.items" :key="rix" class="structured-row">
+                            <input v-model="ri.label" placeholder="评分项" />
+                            <input type="number" step="0.1" v-model.number="ri.score" placeholder="分数" />
+                            <input type="number" step="0.1" v-model.number="ri.max" placeholder="满分" />
+                            <button class="mini-icon-btn danger" @click="removeRatingItem(m.module_config, rix)">×</button>
+                          </div>
+                          <button class="btn btn-sm" @click="addRatingItem(m.module_config)">＋ 添加评分项</button>
+                        </template>
+
+                        <template v-else-if="specialModuleKind(m) === 'quote_cards'">
+                          <div v-for="(q, qi) in m.module_config.items" :key="qi" class="structured-block compact">
+                            <div @click.capture="($event.target.closest('.rich-image-resizer') && selectRichImage($event.target.closest('.rich-image-resizer')))" class="rich-editor mini tiptap-host"
+                                 v-rich-editor-init="{ target: q, key: 'text', slot: 'body' }"
+                                 data-rich-slot="body"
+                                 tabindex="0"
+                                 contenteditable="false"
+                                 :style="textEditorStyle(m.module_config)"
+                                 data-placeholder="原文反馈/寄语"
+                                 @focus="activateRichEditor($event, q, 'text', 'body')"
+                                 @click="activateRichEditor($event, q, 'text', 'body')"
+                                 @mouseup="saveRichSelection($event)"
+                                 @keyup="saveRichSelection($event)"
+                                 @keydown="handleRichEditorKeydown($event)"
+                                 @input="syncEditableText(q, 'text', $event)"></div>
+                            <div class="structured-row">
+                              <input v-model="q.author" placeholder="反馈人/署名" />
+                              <button class="mini-icon-btn danger" @click="removeQuoteItem(m, qi)">×</button>
+                            </div>
+                          </div>
+                          <button class="btn btn-sm" @click="addQuoteItem(m)">＋ 添加反馈卡片</button>
+                        </template>
+
+                        <template v-else-if="specialModuleKind(m) === 'image_grid'">
+                          <div class="structured-row">
+                            <label class="inline-field">列数 <input type="number" min="1" max="4" v-model.number="m.module_config.columns" /></label>
+                            <label class="inline-field">图片比例 <input type="number" step="0.05" min="0.3" max="1.4" v-model.number="m.module_config.aspect_ratio" /></label>
+                          </div>
+                          <div class="image-pick-grid">
+                            <label v-for="img in moduleImageOptions(m)" :key="img.path">
+                              <input type="checkbox" :value="img" v-model="m.module_config.images" />
+                              <span>{{ img.name }}</span>
+                            </label>
+                          </div>
+                        </template>
+
+                        <template v-else-if="specialModuleKind(m) === 'image_text'">
+                          <div class="structured-row">
+                            <select v-model="m.module_config.layout">
+                              <option value="left_image_right_text">左图右文</option>
+                              <option value="right_image_left_text">右图左文</option>
+                              <option value="top_image_bottom_text">上图下文</option>
+                              <option value="bottom_image_top_text">下图上文</option>
+                            </select>
+                            <select v-model="m.module_config.image">
+                              <option value="">选择配图</option>
+                              <option v-for="img in moduleImageOptions(m)" :key="img.path" :value="img.path">{{ img.name }}</option>
+                            </select>
+                            <label class="inline-upload-btn">
+                              上传配图
+                              <input type="file" accept="image/*" style="display:none" @change="uploadModuleImageForTarget($event, m, m.module_config, 'image')" />
+                            </label>
+                            <button class="btn btn-sm" @click="addAction(m.module_config)">＋ CTA</button>
+                          </div>
+                        </template>
+
+                        <template v-else-if="specialModuleKind(m) === 'action_bar'">
+                          <div v-for="(a, ai) in m.module_config.actions" :key="ai" class="structured-block compact">
+                            <div class="structured-row">
+                              <input v-model="a.text" placeholder="按钮文字，如 立即报名" />
+                              <input v-model="a.hint" placeholder="按钮下方说明/截止时间" />
+                              <input v-model="a.color" placeholder="按钮颜色，可空" />
+                              <button class="mini-icon-btn danger" @click="removeAction(m.module_config, ai)">×</button>
+                            </div>
+                          </div>
+                          <button class="btn btn-sm" @click="addAction(m.module_config)">＋ 添加 CTA</button>
+                        </template>
+
+                        <template v-else-if="specialModuleKind(m) === 'qa_block'">
+                          <div v-for="(qa, qi) in m.module_config.items" :key="qi" class="structured-block compact">
+                            <input v-model="qa.q" placeholder="问题" />
+                            <div @click.capture="($event.target.closest('.rich-image-resizer') && selectRichImage($event.target.closest('.rich-image-resizer')))" class="rich-editor mini tiptap-host"
+                                 v-rich-editor-init="{ target: qa, key: 'a', slot: 'body' }"
+                                 data-rich-slot="body"
+                                 tabindex="0"
+                                 contenteditable="false"
+                                 :style="textEditorStyle(m.module_config)"
+                                 data-placeholder="回答/访谈内容，按原文填写"
+                                 @focus="activateRichEditor($event, qa, 'a', 'body')"
+                                 @click="activateRichEditor($event, qa, 'a', 'body')"
+                                 @mouseup="saveRichSelection($event)"
+                                 @keyup="saveRichSelection($event)"
+                                 @keydown="handleRichEditorKeydown($event)"
+                                 @input="syncEditableText(qa, 'a', $event)"></div>
+                            <button class="mini-icon-btn danger" @click="removeQaItem(m, qi)">×</button>
+                          </div>
+                          <button class="btn btn-sm" @click="addQaItem(m)">＋ 添加问答</button>
+                        </template>
+
+                        <template v-else-if="specialModuleKind(m) === 'timeline'">
+                          <div v-for="(part, pi) in m.module_config.parts" :key="pi" class="structured-block">
+                            <div class="structured-row">
+                              <input v-model="part.label" placeholder="阶段标签" />
+                              <input v-model="part.time" placeholder="时间" />
+                              <input v-model="part.format" placeholder="形式" />
+                              <button class="mini-icon-btn danger" @click="removeTimelinePart(m, pi)">×</button>
+                            </div>
+                            <input v-model="part.topic" placeholder="阶段主题/课程主题" />
+                            <div @click.capture="($event.target.closest('.rich-image-resizer') && selectRichImage($event.target.closest('.rich-image-resizer')))" class="rich-editor mini tiptap-host"
+                                 v-rich-editor-init="{ target: part, key: 'output', slot: 'body' }"
+                                 data-rich-slot="body"
+                                 tabindex="0"
+                                 contenteditable="false"
+                                 :style="textEditorStyle(m.module_config)"
+                                 data-placeholder="产出/说明"
+                                 @focus="activateRichEditor($event, part, 'output', 'body')"
+                                 @click="activateRichEditor($event, part, 'output', 'body')"
+                                 @mouseup="saveRichSelection($event)"
+                                 @keyup="saveRichSelection($event)"
+                                 @keydown="handleRichEditorKeydown($event)"
+                                 @input="syncEditableText(part, 'output', $event)"></div>
+                          </div>
+                          <button class="btn btn-sm" @click="addTimelinePart(m)">＋ 添加阶段</button>
+                        </template>
+
+                        <template v-else-if="specialModuleKind(m) === 'table'">
+                          <div class="structured-actions">
+                            <button class="btn btn-sm" @click="addTableColumn(m)">＋ 添加列</button>
+                            <button class="btn btn-sm" @click="addTableRow(m)">＋ 添加行</button>
+                          </div>
+                          <div class="table-editor-grid" :style="{gridTemplateColumns: `repeat(${m.module_config.headers.length}, minmax(120px, 1fr)) 28px`}">
+                            <template v-for="(h, hi) in m.module_config.headers" :key="'h'+hi">
+                              <input v-model="m.module_config.headers[hi]" placeholder="表头" />
+                            </template>
+                            <span></span>
+                            <template v-for="(row, ri) in m.module_config.rows" :key="'r'+ri">
+                              <input v-for="(cell, ci) in m.module_config.headers" :key="ri+'-'+ci" v-model="row[ci]" placeholder="单元格" />
+                              <button class="mini-icon-btn danger" @click="removeTableRow(m, ri)">×</button>
+                            </template>
+                          </div>
+                          <div class="structured-actions">
+                            <button v-for="(h, hi) in m.module_config.headers" :key="hi" class="btn btn-sm" @click="removeTableColumn(m, hi)">删除列：{{ h }}</button>
+                          </div>
+                        </template>
+                      </div>
+                      </div>
+                    </div>
+                  </div>
+                  <div v-if="posterStrategy.scene.hard_rules && posterStrategy.scene.hard_rules.length" class="strategy-rules">
+                    <b>硬规则</b>
+                    <span v-for="r in posterStrategy.scene.hard_rules" :key="r">{{ r }}</span>
+                  </div>
+                  <div v-if="detailNav === 'poster_brief'" class="module-generate-bar">
+                    <div>
+                      <b>按当前模块生成图片</b>
+                      <span>将当前模块编排、标题区视觉层、正文和图片素材一起传入海报生成流程</span>
+                    </div>
+                    <button class="btn btn-primary" :disabled="skillRunning || copyImport.uploading" @click="generatePosterFromModules">
+                      {{ skillRunning || copyImport.uploading ? '生成中…' : '生成海报预览' }}
+                    </button>
+                  </div>
+                </div>
+
+                <!-- 配置警告 -->
+                <div v-if="!modelConfigured('llm')"
+                     class="banner warn" style="margin-bottom:14px">
+                  <span>⚠️</span>
+                  <span class="spacer">尚未配置大语言模型 API Key。点右上角 ⚙️ 配置后才能使用。</span>
+                  <button class="btn btn-primary btn-sm" @click="openSettings">立即配置</button>
+                </div>
+
+                <!-- 表单（动态渲染） -->
+                <div class="skill-form" v-if="skillsRegistry[detailNav] && detailNav !== 'poster_brief'">
+                  <div class="fld" v-for="f in skillsRegistry[detailNav].form" :key="f.key">
+                    <label>
+                      {{ f.label }}
+                      <span v-if="f.required" style="color:var(--danger)">*</span>
+                    </label>
+
+                    <!-- text -->
+                    <input v-if="f.type === 'text'" type="text"
+                           v-model="skillForm[f.key]"
+                           :placeholder="f.placeholder || ''" />
+
+                    <!-- textarea -->
+                    <textarea v-else-if="f.type === 'textarea'"
+                              v-model="skillForm[f.key]"
+                              :placeholder="f.placeholder || ''"></textarea>
+
+                    <!-- number -->
+                    <input v-else-if="f.type === 'number'" type="number"
+                           v-model.number="skillForm[f.key]"
+                           :min="f.min" :max="f.max" />
+
+                    <!-- select -->
+                    <select v-else-if="f.type === 'select'" v-model="skillForm[f.key]">
+                      <option v-for="o in f.options" :key="o.value" :value="o.value">{{ o.label }}</option>
+                    </select>
+
+                    <!-- bool -->
+                    <label v-else-if="f.type === 'bool'" class="checkbox">
+                      <input type="checkbox" v-model="skillForm[f.key]" />
+                      <span style="margin-left:6px">{{ f.help || '启用' }}</span>
+                    </label>
+
+                    <div v-if="f.help && f.type !== 'bool'"
+                         style="font-size:11px;color:var(--text-faint);margin-top:4px">{{ f.help }}</div>
+                  </div>
+
+                  <button class="btn btn-primary btn-lg"
+                          :disabled="skillRunning || !modelConfigured('llm')"
+                          @click="runSkill(detailNav)">
+                    <span v-if="skillRunning">⏳ 生成中…</span>
+                    <span v-else>{{ skillsRegistry[detailNav].icon }} 开始生成</span>
+                  </button>
+                </div>
+
+                <!-- 流式输出区 -->
+                <div v-if="detailNav !== 'poster_brief' && (skillStream.text || skillStream.streaming || skillStream.error)" class="skill-output">
+                  <div class="skill-output-head">
+                    <span v-if="skillStream.streaming" class="kb-tag" style="background:#FEF3C7;color:#B45309">⏳ 生成中</span>
+                    <span v-else-if="skillStream.error" class="kb-tag err">❌ 失败</span>
+                    <span v-else-if="skillStream.done" class="kb-tag ok">✅ 已完成</span>
+                    <span v-if="detailNav !== 'poster_brief'" v-for="(p, i) in skillStream.progress" :key="i"
+                          style="font-size:11px;color:var(--text-dim);margin-left:8px">{{ p }}</span>
+                  </div>
+                  <div v-if="skillStream.error" class="skill-output-body err">
+                    {{ skillStream.error }}
+                  </div>
+                  <div v-else-if="detailNav === 'poster_brief' && (skillStream.streaming || !skillStream.posterUrl)"
+                       class="poster-progress-stage">
+                    <div class="poster-progress-copy">
+                      <b>{{ skillStream.streaming ? '正在生成海报图片' : '正在整理生成结果' }}</b>
+                      <span>{{ skillStream.progress[skillStream.progress.length - 1] || 'AI 正在读取模块、素材和视觉层，请稍候' }}</span>
+                    </div>
+                    <div class="penguin-runway">
+                      <div class="penguin-runner">
+                        <img src="/static/progress/ieg_penguin_runner.png" alt="生成中" />
+                      </div>
+                    </div>
+                    <div class="poster-progress-steps">
+                      <span class="active">读取模块</span>
+                      <span class="active">匹配素材</span>
+                      <span :class="{active: skillStream.streaming}">渲染长图</span>
+                      <span :class="{active: skillStream.posterUrl}">完成</span>
+                    </div>
+                  </div>
+                  <pre v-else-if="detailNav !== 'poster_brief'" class="skill-output-body">{{ skillStream.text }}</pre>
+
+                  <!-- 渲染海报预览 -->
+                  <div v-if="skillStream.posterUrl" style="margin-top:14px">
+                    <div class="skill-output-head">
+                      <span class="kb-tag ok">🎨 海报渲染产物</span>
+                    </div>
+                    <img :src="skillStream.posterUrl" style="max-width:480px;border-radius:8px;border:1px solid var(--border)" />
+                  </div>
+
+                  <!-- 跟进按钮 -->
+                  <div v-if="skillStream.done && skillStream.lastArtifact" style="margin-top:14px;display:flex;gap:8px;flex-wrap:wrap">
+                    <button v-if="detailNav === 'copywriter'"
+                            class="btn btn-primary"
+                            @click="applyCopyToEditor(skillStream.lastArtifact)">
+                      ✍️ 一键填回编辑器
+                    </button>
+                    <button v-if="detailNav === 'poster_brief'"
+                            class="btn btn-primary"
+                            @click="applyBriefToEditor(skillStream.lastArtifact)">
+                      🖼️ 进入编辑器调整
+                    </button>
+                    <button v-if="detailNav === 'poster_brief' && skillStream.posterUrl"
+                            class="btn"
+                            @click="openPosterFull(skillStream.posterUrl)">
+                      🔍 查看原图
+                    </button>
+                  </div>
+                </div>
+
+                <!-- 历史产物 -->
+                <div v-if="getSkillArtifacts(detailNav).length" style="margin-top:24px">
+                  <div class="dm-head artifact-history-head" style="margin-bottom:10px" @click="artifactHistoryOpen = !artifactHistoryOpen">
+                    <h2 style="font-size:14px">历史产物</h2>
+                    <span class="sub">{{ getSkillArtifacts(detailNav).length }} 份</span>
+                    <div style="flex:1"></div>
+                    <button class="mini-icon-btn" @click.stop="artifactHistoryOpen = !artifactHistoryOpen">{{ artifactHistoryOpen ? '收起' : '展开' }}</button>
+                  </div>
+                  <div v-show="artifactHistoryOpen" class="timeline" style="margin-top:0">
+                    <div v-for="a in getSkillArtifacts(detailNav)" :key="a.id" class="tl-row"
+                         @click="viewArtifact(a)">
+                      <div class="tl-icon" :class="skillIconClass(a.skill)">{{ skillIcon(a.skill) }}</div>
+                      <div class="tl-meta">
+                        <div class="tl-title">{{ a.title }}</div>
+                        <div class="tl-sub">{{ a.files ? a.files.join(' · ') : '' }}</div>
+                      </div>
+                      <div class="tl-time">{{ relativeTime(a.created_at) }}</div>
+                    </div>
+                  </div>
+                </div>
+                </div>
+              </template>
+
+              <!-- 其他能力页（占位） -->
+              <template v-else-if="['interview_outline','ppt_outline'].includes(detailNav)">
+                <div class="dm-head">
+                  <h2>{{ skillLabelOf(detailNav) }}
+                    <span style="font-size:13px;color:var(--text-dim);font-weight:400;margin-left:8px">{{ skillSubOf(detailNav) }}</span>
+                  </h2>
+                </div>
+                <div class="empty-page" style="padding:40px 24px">
+                  <div style="font-size:48px;margin-bottom:12px">{{ skillIconOf(detailNav) }}</div>
+                  <p>该能力将在后续版本上线。<br>当前优先专注海报系列。</p>
+                  <div class="badge">即将上线</div>
+                </div>
+              </template>
+
+              <!-- 项目知识库 -->
+              <template v-else-if="detailNav === 'kb'">
+                <div class="dm-head">
+                  <h2>项目知识库</h2>
+                  <span class="sub">只保存当前项目内部资料，不混入平台通用或功能知识库</span>
+                  <div style="flex:1"></div>
+                  <label class="btn btn-primary" :class="{disabled: kb.uploading}">
+                    <span style="font-size:14px">＋</span>
+                    {{ kb.uploading ? '上传中…' : '上传到本项目' }}
+                    <input type="file" multiple style="display:none"
+                           @change="handleKbUpload($event, 'project', currentProject.id)"
+                           :accept="KB_ACCEPT" />
+                  </label>
+                </div>
+
+                <div class="banner">
+                  <span>📚</span>
+                  <span class="spacer">本项目独立文档：{{ projectKbDocs.length }} 份。功能知识库和平台通用知识库需要分别进入对应入口管理。</span>
+                </div>
+
+                <div v-if="projectKbDocs.length === 0" class="empty-page" style="padding:40px 24px">
+                  <div style="font-size:48px;margin-bottom:8px">📚</div>
+                  <p>本项目还没有关联文档。<br>上传项目相关资料（受众调研、过往物料、品牌规范），各 AI 能力会自动检索。</p>
+                </div>
+
+                <div v-else class="kb-list">
+                  <div v-for="d in projectKbDocs" :key="d.id" class="kb-row" :class="{ error: d.status === 'error' }">
+                    <div class="kb-icon">{{ kbIcon(d.format) }}</div>
+                    <div class="kb-info">
+                      <div class="kb-name">{{ d.filename }}
+                        <span class="kb-tag ok">本项目</span>
+                      </div>
+                      <div class="kb-summary">{{ d.summary || d.error || '...' }}</div>
+                      <div class="kb-meta">
+                        <span>{{ formatBytes(d.size) }}</span>
+                        <span>·</span>
+                        <span>{{ d.format.toUpperCase() }}</span>
+                        <span>·</span>
+                        <span>{{ d.chunks_count }} 片段</span>
+                        <span>·</span>
+                        <span>{{ relativeTime(d.created_at) }}</span>
+                      </div>
+                    </div>
+                    <button class="btn btn-sm btn-danger" @click.stop="deleteKbDoc(d)">删除</button>
+                  </div>
+                </div>
+              </template>
+
+              <!-- 全部产物 -->
+              <template v-else-if="detailNav === 'all_artifacts'">
+                <div class="dm-head">
+                  <h2>全部产物</h2>
+                  <span class="sub">{{ (currentProject.artifacts || []).length }} 件</span>
+                </div>
+                <div v-if="!currentProject.artifacts || currentProject.artifacts.length === 0" class="empty-page" style="padding:40px 24px">
+                  <div style="font-size:48px;margin-bottom:8px">📦</div>
+                  <p>还没有产物。左侧选一个 AI 能力开始生成。</p>
+                </div>
+                <div v-else class="archive-table" style="margin-top:8px">
+                  <div class="archive-row head" style="grid-template-columns: 36px 100px 2fr 1fr 90px">
+                    <div></div>
+                    <div>能力</div>
+                    <div>标题</div>
+                    <div>时间</div>
+                    <div>操作</div>
+                  </div>
+                  <div v-for="a in (currentProject.artifacts || [])" :key="a.id" class="archive-row" style="grid-template-columns: 36px 100px 2fr 1fr 90px">
+                    <div class="tl-icon" :class="skillIconClass(a.skill)" style="width:32px;height:32px">{{ skillIcon(a.skill) }}</div>
+                    <div><span class="kb-tag ok">{{ skillLabelOf(a.skill) }}</span></div>
+                    <div class="archive-name">{{ a.title || a.id }}</div>
+                    <div class="archive-meta">{{ relativeTime(a.created_at) }}</div>
+                    <div><button class="btn btn-sm" @click="alert('查看产物：H2 阶段实施')">查看</button></div>
+                  </div>
+                </div>
+              </template>
+            </div>
+          </div>
+        </template>
+
+      </div>
+    </div>
+
+    <!-- ===== 编辑器视图 ===== -->
+    <div v-show="view === 'editor'" class="workspace">
+      <div class="col-left">
+        <div class="section-lib">
+          <h3>添加模块</h3>
+          <div v-for="(meta, type) in schemas.sections" :key="type" class="lib-item" @click="addSection(type)">
+            <span class="icon">{{ meta.icon }}</span>
+            <span>{{ meta.label }}</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="col-mid">
+        <div class="canvas-card" :class="{ selected: selectedKind === 'canvas' }" @click="selectCanvas">
+          <div class="title">🎯 画布与全局配置</div>
+          <div style="font-size:12px;color:var(--text-dim)">
+            配色: {{ brief.canvas?.palette_strategy || '-' }} ·
+            底图: {{ brief.canvas?.bg_image_path ? '✓' : '无' }} ·
+            底层装饰: {{ brief.background_decorations ? '✓' : '无' }}
+          </div>
+        </div>
+
+        <div ref="sortableEl" class="sections-list" style="display:flex;flex-direction:column;gap:12px;">
+          <div v-for="(s, idx) in brief.sections" :key="s._uid"
+               class="section-card"
+               :class="{ selected: selectedKind === 'section' && selectedIdx === idx }"
+               @click="selectSection(idx)" :data-idx="idx">
+            <div class="row">
+              <span class="handle" title="按住拖动调整顺序">≡</span>
+              <span class="icon">{{ schemas.sections[s.type]?.icon || '🧩' }}</span>
+              <span class="name">{{ schemas.sections[s.type]?.label || sectionTypeName(s.type) }}</span>
+              <div class="actions" @click.stop>
+                <button class="btn btn-sm" @click.stop="dupSection(idx)">复制</button>
+                <button class="btn btn-sm btn-danger" @click.stop="delSection(idx)">删除</button>
+              </div>
+            </div>
+            <div class="preview">{{ sectionPreview(s) }}</div>
+          </div>
+        </div>
+
+        <div v-if="brief.sections.length === 0" class="empty-state">
+          左侧点选模块开始拼搭，或顶部"载入模板"
+        </div>
+      </div>
+
+      <div class="col-right">
+        <div v-if="selectedKind === 'canvas'">
+          <div class="form-title">🎯 画布配置</div>
+          <field-form :fields="schemas.canvas" :model="brief.canvas"
+            :session-id="sessionId" :skill-uploads="skillUploads" :asset-types="schemas.asset_types || []" @upload="onUpload" @change="onFormChange" />
+          <div class="form-title" style="margin-top:24px">🌌 底层装饰</div>
+          <div class="form-row">
+            <label class="checkbox">
+              <input type="checkbox" :checked="!!brief.background_decorations"
+                @change="toggleBgDeco($event.target.checked)" />
+              启用底层装饰（嵌入背景层）
+            </label>
+          </div>
+          <div v-if="brief.background_decorations">
+            <div class="form-row">
+              <label>装饰素材路径（每行一个）</label>
+              <textarea :value="bgDecoText" @input="onBgDecoTextInput($event.target.value)"
+                placeholder="/path/to/decoration1.png&#10;/path/to/decoration2.png"></textarea>
+            </div>
+            <div class="form-row">
+              <label>每个素材数量</label>
+              <input type="number" v-model.number="bgDecoConfig.count" min="1" max="50" @input="syncBgDeco" />
+            </div>
+            <div class="form-row">
+              <label>顶部 / 底部排除</label>
+              <div style="display:flex;gap:8px">
+                <input type="number" v-model.number="brief.background_decorations.exclude_top" />
+                <input type="number" v-model.number="brief.background_decorations.exclude_bottom" />
+              </div>
+            </div>
+            <div class="form-row">
+              <label>透明度（0-1）</label>
+              <input type="number" v-model.number="bgDecoConfig.alpha" step="0.05" min="0" max="1" @input="syncBgDeco" />
+            </div>
+          </div>
+        </div>
+
+        <div v-else-if="selectedKind === 'section' && currentSection">
+          <div class="form-title">
+            <span>{{ schemas.sections[currentSection.type]?.icon }}</span>
+            {{ schemas.sections[currentSection.type]?.label || currentSection.type }}
+          </div>
+          <field-form :fields="schemas.sections[currentSection.type]?.fields || []"
+            :model="currentSection" :session-id="sessionId" :skill-uploads="skillUploads" :asset-types="schemas.asset_types || []" @upload="onUpload" @change="onFormChange" />
+        </div>
+
+        <div v-else class="empty-state">点击左边任意模块或画布卡查看配置</div>
+      </div>
+
+      <div class="col-preview">
+        <div class="preview-header">
+          <span class="status-dot" :class="previewStatus"></span>
+          <span v-if="previewStatus === 'busy'">渲染预览中…</span>
+          <span v-else-if="previewStatus === 'error'">预览失败</span>
+          <span v-else-if="preview.url">实时预览 · {{ preview.duration }}s</span>
+          <span v-else>实时预览</span>
+          <div class="spacer"></div>
+          <label class="checkbox"><input type="checkbox" v-model="autoPreview" />自动</label>
+          <button class="btn btn-sm" @click="renderPreview" :disabled="previewStatus === 'busy'">刷新</button>
+        </div>
+        <div class="preview-body">
+          <div v-if="preview.error" class="preview-error">{{ preview.error }}</div>
+          <img v-else-if="preview.url" :src="preview.url" :key="preview.url" />
+          <div v-else class="preview-empty">
+            <div style="font-size:32px;margin-bottom:8px;opacity:0.5">🖼️</div>
+            编辑后等 1.5 秒自动刷新<br>或点上方"刷新"按钮立即渲染
+          </div>
+        </div>
+
+        <div class="chat-panel">
+          <div class="chat-header">
+            <span class="status-dot" :class="chatStatusClass"></span>
+            <span v-if="chat.busy">AI 思考中…</span>
+            <span v-else-if="!chat.modelReady">模型未就位（{{ chat.error || '点 ⚙️ 配置' }}）</span>
+            <span v-else>🤖 AI 助手 · {{ chat.model }}</span>
+            <div class="spacer" style="flex:1"></div>
+            <button v-if="chat.history.length" class="btn btn-sm" @click="clearChat">清空</button>
+          </div>
+
+          <div ref="chatMessagesEl" class="chat-messages">
+            <div v-if="chat.history.length === 0" class="chat-empty">
+              <div>💡 试试这些指令：</div>
+              <div class="examples">
+                <button class="example-btn" @click="sendExample('改成深空藏蓝商务风配色')">改成深空藏蓝商务风配色</button>
+                <button class="example-btn" @click="sendExample('副标题改成「邀你共创未来」')">副标题改成「邀你共创未来」</button>
+                <button class="example-btn" @click="sendExample('让学员须知第二条标红加粗')">让学员须知第二条标红加粗</button>
+              </div>
+            </div>
+            <div v-for="(m, i) in chat.history" :key="i" class="chat-bubble" :class="m.role">
+              <div>{{ m.content }}</div>
+              <div v-if="m.images && m.images.length" class="chat-image-list">
+                <span v-for="img in m.images" :key="img.path">🖼 {{ img.name }}</span>
+              </div>
+              <div v-if="m.actions && m.actions.length" class="actions-list">
+                <div v-for="(a, ai) in m.actions" :key="ai" class="action-item">✓ {{ formatAction(a) }}</div>
+              </div>
+            </div>
+          </div>
+
+          <div v-if="chat.uploadedImages.length" class="chat-upload-strip">
+            <span v-for="img in chat.uploadedImages" :key="img.path">🖼 {{ img.asset_type_label || assetTypeLabel(img.asset_type) }} · {{ img.name }}</span>
+          </div>
+          <div class="chat-input-area">
+            <select class="chat-asset-type" v-model="chat.imageAssetType" title="图片素材类型">
+              <option v-for="t in assetTypeOptions()" :key="t.value" :value="t.value">{{ t.label }}</option>
+            </select>
+            <label class="btn btn-sm chat-upload-btn" :class="{ disabled: chat.uploadingImage || chat.busy }" title="上传图片给 AI 放入海报">
+              🖼
+              <input type="file" accept="image/*" style="display:none" @change="uploadChatImage" />
+            </label>
+            <textarea v-model="chat.input"
+              placeholder="跟 AI 说想怎么改海报…可上传图片后说：放到课程安排前面/作为头图下方配图"
+              @keydown.enter.exact.prevent="sendMessage" :disabled="chat.busy"></textarea>
+            <button class="btn btn-primary send-btn" @click="sendMessage" :disabled="chat.busy || (!chat.input.trim() && chat.uploadedImages.length===0)">发送</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== 新建项目模态 ===== -->
+  <div v-if="newProjectModal.show" class="modal-mask" @click.self="cancelNewProject">
+    <div class="modal-card" style="width:680px">
+      <div class="mc-head">
+        <h3>＋ 新建项目</h3>
+        <button class="btn btn-sm btn-ghost" @click="cancelNewProject">✕</button>
+      </div>
+      <div class="mc-body">
+
+        <div class="fld">
+          <label>项目类型</label>
+          <div class="new-project-type-grid">
+            <button v-for="t in posterStrategies.project_types" :key="t.id"
+                    class="function-type-visual-card"
+                    :class="{active: newProjectForm.project_type === t.id}"
+                    @click.prevent="selectProjectTypeForNewProject(t.id)">
+              <i :style="{background: posterFunctionCreateTypeMeta(t.id).tone}">{{ posterFunctionCreateTypeMeta(t.id).icon }}</i>
+              <div>
+                <b>{{ t.label || posterFunctionCreateTypeMeta(t.id).title }}</b>
+                <span>{{ posterFunctionCreateTypeMeta(t.id).visual }}</span>
+                <em>{{ t.persuasion_strategy || t.style_label || '项目策略' }}</em>
+              </div>
+            </button>
+          </div>
+        </div>
+
+        <div class="fld">
+          <label>项目标题 <span style="color:var(--danger)">*</span></label>
+          <input type="text" v-model="newProjectForm.name" placeholder="例如：2026 新经理训练营" />
+        </div>
+        <div class="fld-row">
+          <div class="fld">
+            <label>负责人</label>
+            <input type="text" v-model="newProjectForm.owner_name" placeholder="例如：李想" />
+          </div>
+          <div class="fld">
+            <label>主题色</label>
+            <label class="cover-theme-field wide">
+              <input type="color" v-model="newProjectForm.cover_theme" />
+              <span>{{ newProjectForm.cover_theme }}</span>
+            </label>
+          </div>
+          <div class="fld">
+            <label>初始状态</label>
+            <select v-model="newProjectForm.status">
+              <option value="in_progress">进行中</option>
+              <option value="pending">待启动</option>
+              <option value="archived">已归档</option>
+            </select>
+          </div>
+        </div>
+        <div class="fld">
+          <label>项目封面</label>
+          <div class="cover-action-row">
+            <button class="btn btn-sm" @click="generateProjectCover('new')" :disabled="newProjectModal.coverBusy || !newProjectForm.name.trim()">
+              {{ newProjectModal.coverBusy ? '生成中…' : '自动生成封面' }}
+            </button>
+            <label class="btn btn-sm" :class="{disabled: newProjectModal.coverBusy}">
+              上传封面
+              <input type="file" accept="image/*" style="display:none" @change="uploadProjectCover($event, 'new')" />
+            </label>
+            <button class="btn btn-sm" @click="newProjectForm.cover_id = null">清空</button>
+          </div>
+          <div class="new-cover-preview">
+            <template v-if="newProjectForm.cover_id">
+              <div v-for="c in covers.filter(x => x.id === newProjectForm.cover_id)"
+                   :key="c.id"
+                   class="cover-pick selected">
+                <img :src="c.url" />
+              </div>
+            </template>
+            <div v-else class="cover-pick none selected" :style="{ borderColor: newProjectForm.cover_theme }">
+              创建时会按项目标题自动生成一次性封面
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="mc-foot">
+        <button class="btn" @click="cancelNewProject">取消</button>
+        <button class="btn btn-primary" @click="submitNewProject" :disabled="!newProjectForm.name.trim() || newProjectModal.busy">
+          {{ newProjectModal.busy ? '创建中…' : '创建项目' }}
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== 编辑项目信息 ===== -->
+  <div v-if="projectEditModal.show" class="modal-mask" @click.self="cancelProjectEdit">
+    <div class="modal-card" style="width:640px">
+      <div class="mc-head">
+        <h3>✏️ 编辑项目信息</h3>
+        <button class="btn btn-sm btn-ghost" @click="cancelProjectEdit">✕</button>
+      </div>
+      <div class="mc-body">
+        <div class="fld">
+          <label>项目名称 <span style="color:var(--danger)">*</span></label>
+          <input type="text" v-model="projectEditModal.name" placeholder="例如：2026 新经理训练营海报" />
+        </div>
+        <div class="fld">
+          <label>项目简介</label>
+          <textarea v-model="projectEditModal.description" placeholder="一两句话描述这个项目的背景与目标"></textarea>
+        </div>
+        <div class="fld-row">
+          <div class="fld">
+            <label>项目状态</label>
+            <select v-model="projectEditModal.status">
+              <option value="in_progress">进行中</option>
+              <option value="pending">待启动</option>
+              <option value="archived">已归档</option>
+            </select>
+          </div>
+          <div class="fld">
+            <label>负责人姓名</label>
+            <input type="text" v-model="projectEditModal.owner_name" placeholder="例如：李想" />
+          </div>
+        </div>
+        <div class="fld">
+          <label>项目封面</label>
+          <div class="cover-action-row">
+            <label class="cover-theme-field">
+              主题色
+              <input type="color" v-model="projectEditModal.cover_theme" />
+            </label>
+            <button class="btn btn-sm" @click="generateProjectCover('edit')" :disabled="projectEditModal.coverBusy || !projectEditModal.name.trim()">
+              {{ projectEditModal.coverBusy ? '生成中…' : '自动生成封面' }}
+            </button>
+            <label class="btn btn-sm" :class="{disabled: projectEditModal.coverBusy}">
+              上传封面
+              <input type="file" accept="image/*" style="display:none" @change="uploadProjectCover($event, 'edit')" />
+            </label>
+            <button class="btn btn-sm" @click="projectEditModal.cover_id = null">清空</button>
+          </div>
+          <div class="cover-picker">
+            <div v-for="c in covers" :key="c.id" class="cover-pick"
+                 :class="{ selected: projectEditModal.cover_id === c.id }"
+                 :title="c.label"
+                 @click="projectEditModal.cover_id = c.id">
+              <img :src="c.url" />
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="mc-foot">
+        <button class="btn" @click="cancelProjectEdit">取消</button>
+        <button class="btn btn-primary"
+                @click="submitProjectEdit"
+                :disabled="projectEditModal.busy || !projectEditModal.name.trim()">
+          {{ projectEditModal.busy ? '保存中…' : '保存修改' }}
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== 渲染结果弹窗 ===== -->
+  <div v-if="modal.show" class="modal-mask-render" @click.self="modal.show = false">
+    <div class="modal-box">
+      <h2>{{ modal.title }}</h2>
+      <div v-if="modal.loading" class="loading">
+        <div class="spinner"></div>
+        <div style="margin-top:12px">渲染中，预计 5-10 秒…</div>
+      </div>
+      <div v-else-if="modal.error" class="error-box">{{ modal.error }}</div>
+      <template v-else>
+        <div style="font-size:12px;color:var(--text-dim)">耗时 {{ modal.duration }}s · {{ modal.pngUrl }}</div>
+        <div class="preview-img"><img :src="modal.pngUrl" /></div>
+        <div class="modal-actions">
+          <a v-if="modal.pdfUrl" class="btn" :href="modal.pdfUrl" target="_blank">下载 PDF</a>
+          <a class="btn btn-primary" :href="modal.pngUrl" download="poster.png">下载 PNG</a>
+          <button class="btn" @click="modal.show = false">关闭</button>
+        </div>
+      </template>
+    </div>
+  </div>
+
+  <!-- ===== Toast ===== -->
+  <div v-if="toast.text" class="toast" :class="toast.kind">{{ toast.text }}</div>
+
+  <div v-if="choiceDialog.show" class="modal-mask choice-mask">
+    <div class="modal-card choice-card">
+      <div class="mc-head">
+        <h3>{{ choiceDialog.title }}</h3>
+      </div>
+      <div class="mc-body">
+        <p>{{ choiceDialog.message }}</p>
+      </div>
+      <div class="mc-foot">
+        <button class="btn" @click="resolveChoiceDialog('secondary')">{{ choiceDialog.secondaryLabel }}</button>
+        <button class="btn btn-primary" @click="resolveChoiceDialog('primary')">{{ choiceDialog.primaryLabel }}</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== 设置抽屉 ===== -->
+  <template v-if="settingsOpen">
+    <div class="drawer-mask" @click="closeSettings"></div>
+    <div class="drawer">
+      <div class="drawer-header">
+        <h3>⚙️ 模型设置</h3>
+        <button class="btn btn-sm btn-ghost" @click="closeSettings">✕</button>
+      </div>
+      <div class="drawer-body">
+        <div class="hint" :class="modelConfigured('llm') && modelConfigured('image') ? 'ok' : 'warn'">
+          <div>{{ modelStatusText('llm') }}</div>
+          <div>{{ modelStatusText('image') }}</div>
+          <div v-if="config.key_from_env || config.image_key_from_env" style="margin-top:4px">
+            检测到环境变量配置，会优先使用环境变量。
+          </div>
+        </div>
+
+        <div class="drawer-section">
+          <h4>大语言模型</h4>
+          <label>供应商</label>
+          <select v-model="settingsDraft.llm_provider" @change="applyModelPreset('llm')"
+                  style="width:100%;padding:8px 10px;border:1px solid var(--border);border-radius:6px;font-size:13px;margin-bottom:8px">
+            <option v-for="p in presetList('llm')" :key="p.value" :value="p.value">{{ p.label }}</option>
+          </select>
+          <label>API Key</label>
+          <input type="password" v-model="settingsDraft.llm_api_key"
+                 placeholder="留空保持不变，输入 __clear__ 清空"
+                 style="width:100%;padding:8px 10px;border:1px solid var(--border);border-radius:6px;font-size:13px;margin-bottom:8px" />
+          <label>Base URL</label>
+          <input type="text" v-model="settingsDraft.llm_base_url"
+                 placeholder="OpenAI 兼容地址，例如 https://api.deepseek.com/v1"
+                 style="width:100%;padding:8px 10px;border:1px solid var(--border);border-radius:6px;font-size:13px;margin-bottom:8px" />
+          <label>Model</label>
+          <input type="text" v-model="settingsDraft.llm_model"
+                 placeholder="例如 deepseek-chat / gpt-4o-mini / qwen-plus"
+                 style="width:100%;padding:8px 10px;border:1px solid var(--border);border-radius:6px;font-size:13px" />
+          <div style="font-size:11px;color:var(--text-faint);margin-top:6px">
+            目前 LLM 调用走 OpenAI Chat Completions 兼容协议；不兼容的厂商可通过网关或自定义 Base URL 接入。
+          </div>
+        </div>
+
+        <div class="drawer-section">
+          <h4>生图模型</h4>
+          <label>供应商</label>
+          <select v-model="settingsDraft.image_provider" @change="applyModelPreset('image')"
+                  style="width:100%;padding:8px 10px;border:1px solid var(--border);border-radius:6px;font-size:13px;margin-bottom:8px">
+            <option v-for="p in presetList('image')" :key="p.value" :value="p.value">{{ p.label }}</option>
+          </select>
+          <label>API Key</label>
+          <input type="password" v-model="settingsDraft.image_api_key"
+                 placeholder="留空保持不变，输入 __clear__ 清空；本地 ComfyUI 可留空"
+                 style="width:100%;padding:8px 10px;border:1px solid var(--border);border-radius:6px;font-size:13px;margin-bottom:8px" />
+          <label>Base URL</label>
+          <input type="text" v-model="settingsDraft.image_base_url"
+                 placeholder="生图接口地址，按供应商要求填写"
+                 style="width:100%;padding:8px 10px;border:1px solid var(--border);border-radius:6px;font-size:13px;margin-bottom:8px" />
+          <label>Model</label>
+          <input type="text" v-model="settingsDraft.image_model"
+                 placeholder="例如 gpt-image-1 / wanx2.1-t2i-turbo / workflow"
+                 style="width:100%;padding:8px 10px;border:1px solid var(--border);border-radius:6px;font-size:13px" />
+          <div style="font-size:11px;color:var(--text-faint);margin-top:6px">
+            后续「生成头图」会写入 <code>canvas.bg_image_path</code>，「生成艺术字」会写入 <code>hero_strip.title_card.image</code>。
+          </div>
+        </div>
+
+        <div v-if="settingsTest.result" class="test-result" :class="settingsTest.result.ok ? 'ok' : 'fail'">
+          <div v-if="settingsTest.result.ok">
+            ✅ 配置可用 · {{ settingsTest.result.provider || '' }} / {{ settingsTest.result.model }}<br>
+            <span v-if="settingsTest.result.reply">回复：“{{ settingsTest.result.reply }}”</span>
+            <span v-else>{{ settingsTest.result.note || '检查通过' }}</span>
+          </div>
+          <div v-else>❌ {{ settingsTest.result.error }}</div>
+        </div>
+      </div>
+      <div class="drawer-footer">
+        <button class="btn" @click="testSettings" :disabled="settingsTest.busy">
+          {{ settingsTest.busy ? '测试中…' : '测试 LLM' }}
+        </button>
+        <button class="btn" @click="testImageSettings" :disabled="settingsTest.busy">
+          测试生图配置
+        </button>
+        <button class="btn btn-primary" @click="saveSettings" :disabled="settingsSaving">
+          {{ settingsSaving ? '保存中…' : '保存' }}
+        </button>
+      </div>
+    </div>
+  </template>
+
+  <div v-show="floatingRich.visible"
+       class="floating-rich-toolbar show"
+       :style="floatingRichStyle"
+       @mousedown.stop
+       @click.stop>
+    <select v-model="floatingRich.font_family"
+            title="字体"
+            @change="applyFloatingRichCommand('fontFamily', floatingRich.font_family)">
+      <option v-for="f in MODULE_FONT_OPTIONS" :key="f.value" :value="f.value">{{ f.label }}</option>
+    </select>
+    <input type="number"
+           min="12"
+           max="96"
+           step="1"
+           v-model.number="floatingRich.font_size"
+           title="字号"
+           @input="applyFloatingRichCommand('fontSize', floatingRich.font_size)"
+           @change="applyFloatingRichCommand('fontSize', floatingRich.font_size)" />
+    <span class="sep"></span>
+    <label class="rich-color-btn" title="字体颜色" @mousedown.prevent>
+      A
+      <input type="color"
+             v-model="floatingRich.text_color"
+             @input="applyFloatingRichCommand('foreColor', floatingRich.text_color)"
+             @change="applyFloatingRichCommand('foreColor', floatingRich.text_color)" />
+    </label>
+    <label class="rich-color-btn" title="高亮颜色" @mousedown.prevent>
+      ▣
+      <input type="color"
+             v-model="floatingRich.highlight_color"
+             @input="applyFloatingRichCommand('hiliteColor', floatingRich.highlight_color)"
+             @change="applyFloatingRichCommand('hiliteColor', floatingRich.highlight_color)" />
+    </label>
+    <button type="button" title="清除文字底色" @mousedown.prevent @click="applyFloatingRichCommand('hiliteColor', 'transparent')">透明</button>
+    <span class="sep"></span>
+    <button type="button" title="加粗" @mousedown.prevent @click="applyFloatingRichCommand('bold')">B</button>
+    <button type="button" title="斜体" @mousedown.prevent @click="applyFloatingRichCommand('italic')"><i>I</i></button>
+    <button type="button" title="下划线" @mousedown.prevent @click="applyFloatingRichCommand('underline')"><u>U</u></button>
+    <template v-if="floatingRich.slot === 'body'">
+      <span class="sep"></span>
+      <button type="button"
+              class="rich-image-btn"
+              :disabled="floatingRich.uploadingImage"
+              title="插入图片"
+              @mousedown.prevent
+              @click="pickInlineRichImage">
+        {{ floatingRich.uploadingImage ? '上传中' : '🖼 图片' }}
+      </button>
+    </template>
+  </div>
+
+  <div v-if="posterLightbox.show" class="poster-lightbox" @click.self="closePosterLightbox">
+    <button class="poster-lightbox-close" @click="closePosterLightbox">×</button>
+    <div class="poster-lightbox-toolbar">
+      <button @click="posterLightbox.zoom = Math.max(50, posterLightbox.zoom - 20)">－</button>
+      <span>{{ posterLightbox.zoom }}%</span>
+      <button @click="posterLightbox.zoom = Math.min(260, posterLightbox.zoom + 20)">＋</button>
+      <a v-if="posterExportUrl('png')" :href="posterExportUrl('png')" download="poster.png">PNG</a>
+      <a v-if="posterExportUrl('pdf')" :href="posterExportUrl('pdf')" target="_blank">PDF</a>
+    </div>
+    <div class="poster-lightbox-stage">
+      <img :src="posterLightbox.url" :style="{ width: posterLightbox.zoom + '%', maxWidth: posterLightbox.zoom <= 100 ? '100%' : 'none' }" />
+    </div>
+  </div>
+
+</div>
+<script src="/static/app.js?v=20260626-restore-full-ui-1"></script>
+</body>
+</html>

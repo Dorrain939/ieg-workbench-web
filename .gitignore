@@ -1,0 +1,95 @@
+# macOS / editor junk
+.DS_Store
+.AppleDouble
+.LSOverride
+._*
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# Environment and secrets
+.env
+.env.*
+!.env.example
+*.local
+poster-web/.server.pid
+poster-web/.history_reset_version
+
+# Python caches and virtual environments
+__pycache__/
+*.py[cod]
+*$py.class
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.coverage
+htmlcov/
+.venv/
+venv/
+env/
+ENV/
+*.egg-info/
+.eggs/
+
+# Python packaging / build output
+build/
+dist/
+site/
+*.whl
+*.egg
+MANIFEST
+
+# PyInstaller / native app build artifacts
+*.manifest
+*.spec.bak
+*.app/
+*.dmg
+
+# Node / Vite frontend dependencies and build output
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+poster-web/frontend/dist/
+poster-web/frontend/build/
+poster-web/frontend/.vite/
+poster-web/frontend/.cache/
+coverage/
+
+# Runtime logs
+*.log
+logs/
+
+# Local database and runtime state
+*.sqlite
+*.sqlite3
+*.db
+poster-web/ieg_workbench.sqlite3
+
+# User uploads, generated exports, and local project data
+poster-web/uploads/
+poster-web/outputs/
+poster-web/projects/
+poster-web/kb_data/
+gaming-training-poster/assets/uploads/
+gaming-training-poster/output/
+gaming-training-poster/outputs/
+
+# Generated media caches
+poster-web/static/covers/generated/
+poster-web/static/progress/
+
+# Large local archives / binaries
+*.zip
+*.tar
+*.tar.gz
+*.tgz
+*.rar
+*.7z
+
+# Keep dependency lock files tracked when they exist
+!package-lock.json
+!yarn.lock
+!pnpm-lock.yaml

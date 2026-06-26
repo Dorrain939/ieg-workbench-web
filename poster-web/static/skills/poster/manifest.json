@@ -1,0 +1,8 @@
+{
+  "id": "poster",
+  "label": "海报生成",
+  "version": "1.0.0",
+  "entry": "/static/skills/poster/index.js",
+  "usesEditorCore": true,
+  "artifactTypes": ["png", "pdf"]
+}

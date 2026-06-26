@@ -1,0 +1,150 @@
+{
+  "schema_version": 2,
+  "scene": "S3",
+  "canvas": {
+    "width": 1200,
+    "format": "long-poster",
+    "bg_strategy": "gradient-2",
+    "bg_colors": ["#0F172A", "#020617"],
+    "glow": true,
+    "glow_top_color": "#22D3EE",
+    "glow_bottom_color": "#A78BFA",
+    "pattern": null,
+    "grain": false,
+    "bg_image_path": "/tmp/gaming-training-poster/assets/generated/A_wide_cinematic_banner_backgr_2026-05-26T12-18-34.png",
+    "bg_image_height": 669,
+    "bg_image_crop_top": 0.0,
+    "bg_image_crop_bottom": 0.0,
+    "bg_image_y_align": "top",
+    "bg_image_blend_h": 180,
+    "palette_strategy": "named:cyber_neon"
+  },
+  "decoration_family": "cyber-neon",
+  "seed": 42,
+  "brand": {
+    "logos": {
+      "horizontal": "assets/logos/tencent-ieg-horizontal-white.png",
+      "emblem": "assets/logos/tencent-ieg-emblem-white.png",
+      "wordmark": "assets/logos/tencent-ieg-wordmark-white.png"
+    }
+  },
+  "logo_position": "top",
+  "logo_variant": "white",
+  "sections": [
+    {
+      "type": "hero_strip",
+      "height": 669,
+      "logo_slot": "horizontal",
+      "logo_height": 56,
+      "placeholder_decor": false,
+      "title_card": {
+        "style": "ai_wordart",
+        "image": "/tmp/gaming-training-poster/assets/generated/Game_title_art_text__IF计划__Wid_2026-05-26T12-19-14.png",
+        "chroma_key": false,
+        "width_ratio": 0.60,
+        "offset_from_bottom": 407,
+        "safe_zone": "auto",
+        "subtitle": "技术毕业生培养项目 · 迎新启航 · 共赴星辰大海"
+      }
+    },
+    {
+      "type": "lead_paragraph",
+      "panel_style": "frosted",
+      "text": "新鹅你好，欢迎加入腾讯互动娱乐事业群（IEG）！游戏是技术与艺术的综合体，技术是其中驱动一切可能的底层引擎。从服务器架构到客户端渲染、从 AI 系统到工具链开发，每一行代码都决定了玩家体验的上限。\n\n『IF 计划』是面向 IEG 全体技术毕业生定制的入职培养项目【必修】，将带你完成从校园到大厂的关键一跃——掌握游戏技术工业流程、理解跨团队协作、形成可持续成长的工程方法论。"
+    },
+    {
+      "type": "section_title_bar",
+      "style": "neon",
+      "index": 1,
+      "text": "你将获得"
+    },
+    {
+      "type": "bullet_points_block",
+      "bullets": [
+        "技术体系课：游戏全栈技术（客户端/服务器/引擎/工具/AI）系统化课程，补齐大厂工程认知",
+        "项目实战：脱产参与 MiniGame 实战，体验从技术方案评审到上线的完整工程管线",
+        "名师带教：IEG 技术总监与核心主程直接指导，完成代码评审与技术沉淀",
+        "跨工作室游学：走访头部工作室技术团队，理解不同品类的架构设计选择",
+        "长期社群：结业后接入 IEG 技术学习中心 + 导师网络，持续支持你的技术成长"
+      ]
+    },
+    {
+      "type": "section_title_bar",
+      "style": "neon",
+      "index": 2,
+      "text": "课程安排"
+    },
+    {
+      "type": "data_table",
+      "headers": ["阶段", "时间", "形式", "产出"],
+      "rows": [
+        ["Phase 1 · 岗前预习", "2026.06.01 — 06.30", "线上自学", "技术能力问卷 + 游戏拆解报告"],
+        ["Phase 2 · 集中训练营", "2026.07.07 — 07.25", "深圳总部·脱产", "MiniGame 实战作品一套"],
+        ["Phase 3 · 工作室游学", "2026.07.28 — 08.01", "线下走访", "工作室技术调研笔记"],
+        ["Phase 4 · 入职后跟练", "2026.08 — 2026.09", "导师 1v1 + 月度分享", "结业技术报告 + 导师评审"]
+      ]
+    },
+    {
+      "type": "section_title_bar",
+      "style": "neon",
+      "index": 3,
+      "text": "讲师团队"
+    },
+    {
+      "type": "faculty_grid",
+      "layout": "detail",
+      "avatar_shape": "circle",
+      "members": [
+        {
+          "name": "张明远",
+          "title": "IEG 学习与发展总监",
+          "bio": "腾讯互娱人才发展负责人，深耕游戏行业技术人才培养 10 年，主导搭建 IEG 技术学习体系，拥有丰富的跨工作室培训项目经验。"
+        },
+        {
+          "name": "李思源",
+          "title": "技术专项培训首席专家",
+          "bio": "前 AAA 游戏主程序，精通客户端渲染与服务器架构，主导多款亿级 DAU 产品的技术攻关，现专注于大厂新人工程能力培育体系建设。"
+        }
+      ]
+    },
+    {
+      "type": "section_title_bar",
+      "style": "neon",
+      "index": 4,
+      "text": "注意事项"
+    },
+    {
+      "type": "notice_box",
+      "inline": true,
+      "accent_color": "#22D3EE",
+      "bullets": [
+        "集中训练营阶段全程脱产，请提前协调好项目组工作安排",
+        "请自备笔记本电脑，工作室提供工位与显示器",
+        "课程内容涉及内部技术资料，代码与课件不得对外传播"
+      ]
+    },
+    {
+      "type": "section_title_bar",
+      "style": "neon",
+      "index": 5,
+      "text": "报名方式"
+    },
+    {
+      "type": "cta_button",
+      "text": "立即报名",
+      "pre_lines": ["截止时间：2026 年 6 月 5 日（周五）24:00", "招募名额：限 60 人 · 先到先得"],
+      "post_lines": ["报名地点：IEG 总部·腾讯大学"]
+    },
+    {
+      "type": "contact_inline",
+      "text": "如有任何疑问可联系企业大学 dorrainzeng（曾子河）。"
+    },
+    {
+      "type": "footer_logobar",
+      "logos": []
+    }
+  ],
+  "decorations": {
+    "density": "none"
+  }
+}

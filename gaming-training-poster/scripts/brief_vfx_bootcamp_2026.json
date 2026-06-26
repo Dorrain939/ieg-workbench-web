@@ -1,0 +1,190 @@
+{
+  "schema_version": 2,
+  "scene": "S2",
+  "canvas": {
+    "width": 1440,
+    "format": "long-poster",
+    "bg_strategy": "ai-soft",
+    "bg_colors": ["#1A0A3D", "#0D0520"],
+    "bg_image_path": "/Users/dorrain/Desktop/特效素材/设计物料/头图背景.png",
+    "bg_image_height": 883,
+    "bg_image_fit": "width",
+    "bg_image_crop_top": 0.0,
+    "bg_image_crop_bottom": 0.0,
+    "bg_image_y_align": "top",
+    "bg_image_blend_h": 160,
+    "bg_image_top_fade": 0,
+    "bg_image_bottom_fade": 120,
+    "bg_image_chroma_key": false,
+    "glow": true,
+    "glow_top_color": "#9333EA",
+    "glow_bottom_color": "#4F1282",
+    "pattern": null,
+    "grain": false,
+    "palette_strategy": "named:deep_space"
+  },
+  "decoration_family": "semi-3d-collage",
+  "seed": 42,
+  "brand": {
+    "logos": {
+      "horizontal": "assets/logos/tencent-ieg-horizontal-white.png",
+      "emblem": "assets/logos/tencent-ieg-emblem-white.png",
+      "wordmark": "assets/logos/tencent-ieg-wordmark-white.png"
+    }
+  },
+  "logo_position": "none",
+  "logo_variant": "white",
+  "sections": [
+    {
+      "type": "top_logo_bar",
+      "logos": [
+        "/Users/dorrain/Desktop/特效素材/设计物料/素材/腾讯招聘logo.png",
+        "/Users/dorrain/Desktop/特效素材/设计物料/素材/互动事业群logo.png",
+        "/Users/dorrain/Desktop/特效素材/设计物料/素材/IEG游戏人才招聘项目logo.png",
+        "/Users/dorrain/.codebuddy/skills/gaming-training-poster/assets/logos/tencent-ieg-horizontal-white.png"
+      ],
+      "logo_height": 44,
+      "logo_heights": [26, 44, 60, 44],
+      "gap": 80,
+      "pad_top": 20,
+      "pad_bottom": 20,
+      "align": "center"
+    },
+    {
+      "type": "hero_strip",
+      "height": 883,
+      "height_strict": true,
+      "tight_bottom": true,
+      "placeholder_decor": false,
+      "title_card": {
+        "style": "ai_wordart",
+        "image": "assets/uploads/vfx2026/Chinese_game_title_art__two_li_2026-05-27T06-08-35.png",
+        "chroma_key": true,
+        "key_lightness": 28,
+        "key_softness": 8,
+        "width_ratio": 0.88,
+        "offset_from_bottom": 600,
+        "safe_zone": "auto"
+      }
+    },
+    {
+      "type": "subtitle_text",
+      "text": "正式开营啦！",
+      "font_size": 80,
+      "color": "#FFFFFF",
+      "pad_top": 4,
+      "pad_bottom": 20
+    },
+
+    {
+      "type": "section_title_bar",
+      "style": "plain",
+      "text": "项目介绍"
+    },
+    {
+      "type": "lead_paragraph",
+      "panel_style": "asset_frame",
+      "asset_frame_path": "/Users/dorrain/Desktop/小透明框.png",
+      "text_color": "#FFFFFF",
+      "text": "2026特效实习生训练营-Unity3D专班是腾讯游戏特效专家与行业资深特效培训机构「黑格子特效培训班」合作，为互娱定向培养并招募特效设计师的训练营，培养内容包含特效引擎系统学习、特效美术素养提升、特效设计制作流程与规范、项目实战等。"
+    },
+
+    {
+      "type": "section_title_bar",
+      "style": "plain",
+      "text": "开营仪式"
+    },
+    {
+      "type": "info_card",
+      "panel_style": "asset_frame",
+      "asset_frame_path": "/Users/dorrain/Desktop/小透明框.png",
+      "text_color": "#FFFFFF",
+      "heading": "开营时间 & 地点",
+      "body": "时间：2026年6月8日（周一）上午 10:00 - 12:00\n地点：成都大厦 B 座 0103"
+    },
+    {
+      "type": "data_table",
+      "headers": ["时间", "环节"],
+      "rows": [
+        ["10:00 - 10:20", "项目介绍"],
+        ["10:20 - 10:50", "嘉宾分享"],
+        ["10:50 - 11:00", "班级规则宣导"],
+        ["11:00 - 12:00", "班级破冰活动"]
+      ],
+      "col_weights": [1.0, 2.2],
+      "align": ["center", "center"],
+      "accent_color": "#9333EA",
+      "header_color": "#F0E6FF",
+      "header_font_size": 36
+    },
+
+    {
+      "type": "section_title_bar",
+      "style": "plain",
+      "text": "项目全景"
+    },
+    {
+      "type": "info_card",
+      "panel_style": "asset_frame",
+      "asset_frame_path": "/Users/dorrain/Desktop/小透明框.png",
+      "text_color": "#FFFFFF",
+      "heading": "培养周期",
+      "body": "· 5月25日 - 6月5日　线上预科学习，共 2 周\n· 6月8日 - 7月31日　线下面授培训，共 8 周\n· 7月31日后　　　　 回到部门进行至少一个月在岗实习"
+    },
+    {
+      "type": "image_block",
+      "image_path": "/Users/dorrain/Desktop/复杂表格内容.png",
+      "pad_top": 24,
+      "pad_bottom": 24,
+      "width_ratio": 1.0,
+      "align": "center"
+    },
+
+    {
+      "type": "section_title_bar",
+      "style": "plain",
+      "text": "合作讲师"
+    },
+    {
+      "type": "info_card",
+      "panel_style": "asset_frame",
+      "asset_frame_path": "/Users/dorrain/Desktop/小透明框.png",
+      "text_color": "#FFFFFF",
+      "logo_path": "/Users/dorrain/Desktop/logo/2021HGZ_logo横版_黑.png",
+      "logo_height": 80,
+      "logo_invert": true,
+      "heading": "成都黑格子科技有限公司",
+      "body": "创立于2014年，成都最大的游戏特效培训机构。拥有专业的游戏特效师30余名，因其契合行业需求的培训体系以及和大厂的紧密合作成为业内公认的特效 top 级培训班。"
+    },
+
+    {
+      "type": "section_title_bar",
+      "style": "plain",
+      "text": "学员须知"
+    },
+    {
+      "type": "notice_box",
+      "inline": true,
+      "accent_color": "#9333EA",
+      "bullets": [
+        "所有学员需保证全程参与培训，项目期间将有考勤记录，请准时参加",
+        "学习期间非必须不能请假。如需请假，提前至少3天走请假流程，发邮件写明请假原因，主送真实导师和直接上级，并抄送项目PM，同时在HR助手提交正式请假流程",
+        "学习资源有限，请珍惜课程学习及作业辅导机会，业务导师和授课老师会进行作业验收和点评，请务必重视，全程参与并准时完成",
+        "请服从组织统一安排，具体日程安排请及时关注邮件以及企微官方学员群通知"
+      ]
+    },
+
+    {
+      "type": "section_title_bar",
+      "style": "plain",
+      "text": "联系方式"
+    },
+    {
+      "type": "contact_inline",
+      "text": "如有任何疑问，请联系项目PM hongjinnli（李虹瑾）、班主任 v_shasluo（罗莎莎）；招聘相关咨询请联系 baishanliu（刘柏杉）或 joyceeewang（王珏）。"
+    }
+  ],
+  "decorations": {
+    "density": "none"
+  }
+}

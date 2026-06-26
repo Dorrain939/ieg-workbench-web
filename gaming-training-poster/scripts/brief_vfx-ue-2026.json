@@ -1,0 +1,213 @@
+{
+  "scene": "S3",
+  "logo_position": "none",
+  "canvas": {
+    "width": 1440,
+    "bg_colors": ["#1A0A3D", "#0D0520"],
+    "bg_image_path": "/Users/dorrain/.codebuddy/skills/gaming-training-poster/assets/uploads/vfx-bootcamp-2026/hero_bg.png",
+    "bg_image_fit": "width",
+    "bg_image_bottom_fade_ratio": 0.35,
+    "palette_strategy": "named:cyber_neon",
+    "pattern": "none",
+    "glow": false
+  },
+  "decorations": {
+    "density": "none"
+  },
+  "background_decorations": {
+    "seed": 42,
+    "exclude_top": 1500,
+    "exclude_bottom": 200,
+    "types": [
+      {"path": "/Users/dorrain/.codebuddy/skills/gaming-training-poster/assets/uploads/vfx-bootcamp-2026/deco_doll1.png",
+       "size": [220, 320], "count": 12, "alpha": 0.55, "rotate": false, "blur": 0},
+      {"path": "/Users/dorrain/.codebuddy/skills/gaming-training-poster/assets/uploads/vfx-bootcamp-2026/deco_doll2.png",
+       "size": [200, 290], "count": 12, "alpha": 0.55, "rotate": false, "blur": 0},
+      {"path": "/Users/dorrain/.codebuddy/skills/gaming-training-poster/assets/uploads/vfx-bootcamp-2026/deco_star_dim.png",
+       "size": [40, 90], "count": 18, "alpha": 0.65, "rotate": true, "blur": 0}
+    ]
+  },
+  "sections": [
+    {
+      "type": "top_logo_bar",
+      "logos": [
+        "/Users/dorrain/.codebuddy/skills/gaming-training-poster/assets/uploads/vfx-bootcamp-2026/logo_tencent_recruit.png",
+        "/Users/dorrain/.codebuddy/skills/gaming-training-poster/assets/uploads/vfx-bootcamp-2026/logo_ieg.png",
+        "/Users/dorrain/.codebuddy/skills/gaming-training-poster/assets/uploads/vfx-bootcamp-2026/logo_ieg_talent.png",
+        "/Users/dorrain/.codebuddy/skills/gaming-training-poster/assets/uploads/vfx-bootcamp-2026/logo_s3.png"
+      ],
+      "logo_heights": [44, 44, 44, 44],
+      "gap": 80,
+      "pad_top": 22,
+      "pad_bottom": 22,
+      "align": "center"
+    },
+    {
+      "type": "hero_strip",
+      "tight_bottom": true,
+      "title_card": {
+        "style": "ai_wordart",
+        "image": "/Users/dorrain/.codebuddy/skills/gaming-training-poster/assets/uploads/vfx-bootcamp-2026/wordart_chroma.png",
+        "chroma_key": false,
+        "shadow": false,
+        "width_ratio": 0.86,
+        "offset_from_bottom": 320,
+        "safe_zone": "auto"
+      }
+    },
+    {
+      "type": "subtitle_text",
+      "text": "正式开营啦！",
+      "font_size": 96,
+      "offset_x": 24,
+      "pad_top": 0,
+      "pad_bottom": 0
+    },
+    {
+      "type": "section_title_bar",
+      "style": "plain",
+      "text": "项目介绍"
+    },
+    {
+      "type": "lead_paragraph",
+      "panel_style": "asset_frame",
+      "asset_frame_path": "/Users/dorrain/.codebuddy/skills/gaming-training-poster/assets/uploads/vfx-bootcamp-2026/info_frame.png",
+      "corner": 16,
+      "pad": 40,
+      "text_color": "#E8D8FF",
+      "font_size": 28,
+      "text": "2026特效实习生训练营-UE专班是腾讯游戏特效专家与行业资深UE特效讲师「月神」合作，为互娱定向培养并招募特效设计师的训练营，培养内容包含特效引擎系统学习、特效美术素养提升、特效设计制作流程与规范、项目实战等。"
+    },
+    {
+      "type": "section_title_bar",
+      "style": "plain",
+      "text": "开营仪式"
+    },
+    {
+      "type": "image_block",
+      "image_path": "/Users/dorrain/.codebuddy/skills/gaming-training-poster/assets/uploads/vfx-bootcamp-2026/info_frame.png",
+      "width_ratio": 1.0,
+      "align": "center",
+      "pad_top": 8,
+      "pad_bottom": 8
+    },
+    {
+      "type": "data_table",
+      "headers": ["时间", "环节"],
+      "align": ["center", "center"],
+      "col_weights": [1.0, 1.5],
+      "accent_color": "#9333EA",
+      "header_color": "#FFFFFF",
+      "header_font_size": 34,
+      "font_size": 32,
+      "rows": [
+        ["10:00 - 10:20", "项目介绍"],
+        ["10:20 - 10:50", "嘉宾分享"],
+        ["10:50 - 11:00", "班级规则宣导"],
+        ["11:00 - 12:00", "班级破冰活动"]
+      ]
+    },
+    {
+      "type": "section_title_bar",
+      "style": "plain",
+      "text": "项目全景"
+    },
+    {
+      "type": "lead_paragraph",
+      "panel_style": "none",
+      "font_role": "display",
+      "pad": 20,
+      "line_height": 60,
+      "text_color": "#FFFFFF",
+      "font_size": 34,
+      "text": "「特效训练营-UE专班」培养周期\n\n· 6月5日 - 8月3日　线上与线下相结合，共8周\n· 8月3日后　回到部门进行至少一个月的在岗实习"
+    },
+    {
+      "type": "image_block",
+      "image_path": "/Users/dorrain/.codebuddy/skills/gaming-training-poster/assets/uploads/vfx-bootcamp-2026/course_table_ue.png",
+      "width_ratio": 1.0,
+      "align": "center",
+      "pad_top": 0,
+      "pad_bottom": 24,
+      "corner_radius": 16
+    },
+    {
+      "type": "section_title_bar",
+      "style": "plain",
+      "text": "合作讲师"
+    },
+    {
+      "type": "image_block",
+      "image_path": "/Users/dorrain/.codebuddy/skills/gaming-training-poster/assets/uploads/vfx-bootcamp-2026/teacher_yueshen_card.png",
+      "width_ratio": 1.0,
+      "align": "center",
+      "pad_top": 0,
+      "pad_bottom": 0
+    },
+    {
+      "type": "section_title_bar",
+      "style": "plain",
+      "text": "内部顾问团"
+    },
+    {
+      "type": "faculty_grid",
+      "layout": "grid",
+      "cols": 5,
+      "avatar_shape": "circle",
+      "avatar_size": 180,
+      "ring_color": "#9333EA",
+      "ring_width": 6,
+      "gap_x": 24,
+      "gap_y": 40,
+      "pad_top": 16,
+      "pad_bottom": 16,
+      "panel_style": "asset_frame",
+      "asset_frame_path": "/Users/dorrain/.codebuddy/skills/gaming-training-poster/assets/uploads/vfx-bootcamp-2026/info_frame.png",
+      "frame_inset": 32,
+      "name_color": "#FFFFFF",
+      "title_color": "#FFFFFF",
+      "name_font_size": 26,
+      "title_font_size": 20,
+      "title_font_role": "display",
+      "max_title_lines": 4,
+      "members": [
+        {"avatar": "/Users/dorrain/.codebuddy/skills/gaming-training-poster/assets/uploads/vfx-bootcamp-2026/instructor_01_lionelzheng.png", "name": "lionelzheng（郑棋文）", "title": "量子工作室美术总监"},
+        {"avatar": "/Users/dorrain/.codebuddy/skills/gaming-training-poster/assets/uploads/vfx-bootcamp-2026/instructor_02_macma.png", "name": "macma（马超）", "title": "光子特效设计专家"},
+        {"avatar": "/Users/dorrain/.codebuddy/skills/gaming-training-poster/assets/uploads/vfx-bootcamp-2026/instructor_03_samhu.png", "name": "samhu（胡振中）", "title": "光子艺术部艺术组总监"},
+        {"avatar": "/Users/dorrain/.codebuddy/skills/gaming-training-poster/assets/uploads/vfx-bootcamp-2026/instructor_04_axue.png", "name": "axue（薛竺）", "title": "魔术师工作室UC项目组美术"},
+        {"avatar": "/Users/dorrain/.codebuddy/skills/gaming-training-poster/assets/uploads/vfx-bootcamp-2026/instructor_05_pamliang.png", "name": "pamliang（梁学鹏）", "title": "魔方特效设计专家"},
+        {"avatar": "/Users/dorrain/.codebuddy/skills/gaming-training-poster/assets/uploads/vfx-bootcamp-2026/instructor_06_zlzhengliu.png", "name": "zlzhengliu（刘政）", "title": "魔方火影手游项目组美术"},
+        {"avatar": "/Users/dorrain/.codebuddy/skills/gaming-training-poster/assets/uploads/vfx-bootcamp-2026/instructor_07_dannyliu.png", "name": "dannyliu（刘子扬）", "title": "北极光A3 Europa项目组特效Lead"},
+        {"avatar": "/Users/dorrain/.codebuddy/skills/gaming-training-poster/assets/uploads/vfx-bootcamp-2026/instructor_08_bieberdu.png", "name": "bieberdu（杜宝春）", "title": "天美J3 C-game项目组3D特效组长"},
+        {"avatar": "/Users/dorrain/.codebuddy/skills/gaming-training-poster/assets/uploads/vfx-bootcamp-2026/instructor_09_alickxu.png", "name": "alickxu（许凯强）", "title": "天美J3 DF项目组美术"},
+        {"avatar": "/Users/dorrain/.codebuddy/skills/gaming-training-poster/assets/uploads/vfx-bootcamp-2026/instructor_10_sirujiang.png", "name": "sirujiang（蒋思茹）", "title": "天美L1王者项目组特效指导"}
+      ]
+    },
+    {
+      "type": "section_title_bar",
+      "style": "plain",
+      "text": "学员须知"
+    },
+    {
+      "type": "notice_box",
+      "accent_color": "#9333EA",
+      "font_size": 26,
+      "bullets": [
+        "所有学员需要保证全程参与培训，项目期间将会有考勤记录，请大家关注课程安排，准时参加。",
+        {"text": "学习期间非必须不能请假。如需请假提前至少3天走请假流程，发送邮件写明请假原因，主送真实导师和直接上级，并抄送项目PM，同时在HR助手提交正式请假流程。", "highlight": true, "highlight_color": "#FF4444"},
+        "学习资源有限，请大家珍惜课程学习及作业辅导机会，业务导师和授课老师会进行作业验收和点评，请大家务必重视，全程参与并准时完成。",
+        "请服从组织统一安排，具体日程安排请及时关注邮件以及企微官方学员群通知。"
+      ]
+    },
+    {
+      "type": "section_title_bar",
+      "style": "plain",
+      "text": "联系方式"
+    },
+    {
+      "type": "contact_inline",
+      "font_size": 26,
+      "text": "如有任何疑问，请联系项目PM hongjinnli（李虹瑾）、班主任 v_shasluo（罗莎莎）；\n招聘相关咨询请联系 baishanliu（刘柏杉）或 joyceeewang（王珏）。"
+    }
+  ]
+}

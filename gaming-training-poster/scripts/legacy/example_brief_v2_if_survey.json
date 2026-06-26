@@ -1,0 +1,95 @@
+{
+  "schema_version": 2,
+  "scene": "S1",
+  "canvas": {
+    "width": 1200,
+    "format": "long-poster",
+    "bg_strategy": "gradient-2",
+    "bg_colors": ["#241B5C", "#0F0A2E"],
+    "glow": true,
+    "glow_top_color": "#FBBF24",
+    "glow_bottom_color": "#7C4DFF",
+    "pattern": "grid",
+    "grain": true
+  },
+  "decoration_family": "semi-3d-collage",
+  "palette_override": {
+    "primary": "#5B3FA0",
+    "accent_a": "#FBBF24",
+    "accent_b": "#A78BFA",
+    "neutral": "#0E0F1A"
+  },
+  "seed": 7,
+  "sections": [
+    {
+      "type": "hero_strip",
+      "height": 720,
+      "logo_slot": "horizontal",
+      "logo_height": 64,
+      "title_card": {
+        "style": "gradient-large",
+        "size": 130,
+        "color_a": "#FFE082",
+        "color_b": "#FF7043",
+        "lines": ["IF 计划", "调查问卷"],
+        "offset_from_bottom": 480
+      }
+    },
+    {
+      "type": "lead_paragraph",
+      "panel_style": "frosted",
+      "text": "新鹅你好，欢迎选择并加入腾讯互动娱乐事业群（IEG）！当大家决定踏入游戏行业的那一刻起，就不再仅仅是一名玩家。充分的游戏经历是对我们的基本要求；掌握游戏技术分析方法、理解游戏技术设计思路、洞察相关岗位开发需求也是我们必备的工作能力。IF 计划旨在帮助大家掌握专业基础能力、了解游戏业务和研发全流程、锻炼工程实践能力和沟通协作能力，更快融入工作并助力长期发展。"
+    },
+    {
+      "type": "info_card",
+      "heading": "关于 'IF 计划'",
+      "body": "'IF 计划'是面向 IEG 所有技术毕业生定制的培养项目【必修】。IF 计划旨在通过游戏体验、游戏技术研究、系列专业课程、MiniGame 开发实战、系列专业课程等培养形式，助力新鹅提升游戏技术理解力，打下坚实的基础，加速未来职业成长。"
+    },
+    {
+      "type": "info_card_with_qr",
+      "heading": "关于调查问卷",
+      "body": "为了给大家匹配针对性的学习资源，帮助大家更好成长，请配合完成基础能力和游戏体验的调查问卷，请参考个人实际情况认真填写，所有信息将严格保密。截止时间：北京时间 2026 年 1 月 15 日（周三）晚上 24:00，请按时完成。小彩蛋：完成问卷即可领取'IF 计划定制礼物'一套，别忘了在问卷最后留下你的邮寄信息哦~",
+      "qr_image": null,
+      "qr_label": "问卷二维码"
+    },
+    {
+      "type": "section_title_bar",
+      "style": "neon",
+      "text": "常见问题解答"
+    },
+    {
+      "type": "qa_block",
+      "items": [
+        {
+          "q": "Q1: 'IF 计划'是什么？",
+          "a": "一直以来，游戏行业的每一次关键发展都伴随着技术的重要变革。在当前游戏行业对产品高品质的需求下，技术在提高游戏表现、提升研发效能等方面扮演着愈加重要的角色。今年，为了帮助各位 IEG 技术新鹅更快融入工作并助力长期发展，我们对项目培养内容进行了全面升级，升级后的项目为'IF 计划'。"
+        },
+        {
+          "q": "Q2: 我可以通过 'IF 计划' 得到哪些培训内容呢？",
+          "a": "'IF 计划'包括【岗前学习】和【入职后培训】两个阶段。岗前学习阶段，我们将主要以游戏体验和技术研究为主，鼓励大家多多体验游戏和深度分析游戏技术方案从而了解游戏行业技术开发思路；入职后培训，我们将提供一系列游戏技术领域相关课程和游戏行业通识，帮助大家建立游戏行业技术知识框架。同时我们会安排脱产培训，以 MiniGame 实战为主，帮助大家掌握游戏开发全流程，促进跨岗位协作能力。"
+        },
+        {
+          "q": "Q3: 'IF 计划' 项目时间是怎样安排的？我现在还需要做什么吗？",
+          "a": "'IF 计划'时间线为的岗前学习预计时间为 2026 年 2 月 - 2026 年 7 月，入职后培训预计时间为 2026 年 7 月 - 2026 年 9 月。请关注后续邮件和信息，我们将发布【2026 'IF 计划' 岗前任务全景图】，为你介绍详细学习机制和挑战关卡。"
+        }
+      ]
+    },
+    {
+      "type": "contact_card",
+      "text": "有任何疑问，欢迎联系项目运营负责人龙星竹或项目负责人李浩祯。请扫码添加企业微信，请备注【姓名 + 部门 + 技术毕业生】~",
+      "contacts": [
+        { "name": "龙星竹", "qr": null },
+        { "name": "李浩祯", "qr": null }
+      ]
+    },
+    {
+      "type": "footer_logobar",
+      "logos": []
+    }
+  ],
+  "decorations": {
+    "density": "medium",
+    "types": ["floating_chars", "paper_planes", "crystals"],
+    "seed": 7
+  }
+}

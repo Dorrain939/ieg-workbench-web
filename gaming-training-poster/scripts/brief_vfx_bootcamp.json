@@ -1,0 +1,152 @@
+{
+  "schema_version": 2,
+  "scene": "S3",
+  "canvas": {
+    "width": 1200,
+    "format": "long-poster",
+    "bg_strategy": "gradient-2",
+    "bg_colors": ["#0D0D1A", "#060610"],
+    "glow": true,
+    "glow_top_color": "#F97316",
+    "glow_bottom_color": "#22D3EE",
+    "pattern": null,
+    "grain": false,
+    "bg_image_path": "/tmp/gaming-training-poster/assets/generated/A_wide_cinematic_banner_backgr_2026-05-27T01-46-17.png",
+    "bg_image_height": 670,
+    "bg_image_crop_top": 0.0,
+    "bg_image_crop_bottom": 0.0,
+    "bg_image_y_align": "top",
+    "bg_image_blend_h": 180,
+    "palette_strategy": "named:cyber_neon"
+  },
+  "decoration_family": "cyber-neon",
+  "seed": 7,
+  "brand": {
+    "logos": {
+      "horizontal": "assets/logos/tencent-ieg-horizontal-white.png",
+      "emblem": "assets/logos/tencent-ieg-emblem-white.png",
+      "wordmark": "assets/logos/tencent-ieg-wordmark-white.png"
+    }
+  },
+  "logo_position": "top",
+  "logo_variant": "white",
+  "sections": [
+    {
+      "type": "hero_strip",
+      "height": 670,
+      "logo_slot": "horizontal",
+      "logo_height": 56,
+      "placeholder_decor": false,
+      "title_card": {
+        "style": "ai_wordart",
+        "image": "/tmp/gaming-training-poster/assets/generated/Game_title_art_text_logo__特效训练_2026-05-27T01-46-18.png",
+        "chroma_key": true,
+        "key_lightness": 25,
+        "key_softness": 6,
+        "width_ratio": 0.55,
+        "offset_from_bottom": 300,
+        "safe_zone": "auto",
+        "subtitle": "游戏特效技术培训 · 2026 夏季开营"
+      }
+    },
+    {
+      "type": "lead_paragraph",
+      "panel_style": "frosted",
+      "text": "欢迎来到 IEG 游戏特效训练营！特效是游戏世界里最直接击中玩家感官的视觉语言——爆炸、技能、环境粒子、UI 动效，每一帧都关乎体验上限。本次训练营面向 IEG 全体特效方向新员工【必修】，由资深特效主美带队，带你系统掌握游戏实时特效的完整制作管线，从粒子系统到引擎接入，从效果调优到项目规范。"
+    },
+    {
+      "type": "section_title_bar",
+      "style": "neon",
+      "index": 1,
+      "text": "你将掌握"
+    },
+    {
+      "type": "bullet_points_block",
+      "bullets": [
+        "粒子系统：Niagara / VFX Graph 核心原理与高性能粒子制作范式",
+        "材质特效：Shader 动画、UV 扰动、溶解/描边/菲涅尔等常用特效材质",
+        "技能特效：从设计稿到引擎落地的完整流程，含碰撞反馈与音效配合",
+        "环境特效：天气/火焰/水体/爆炸等场景级大规模粒子优化方案",
+        "性能规范：Draw Call 控制、LOD 策略、移动端适配与真机调优"
+      ]
+    },
+    {
+      "type": "section_title_bar",
+      "style": "neon",
+      "index": 2,
+      "text": "课程安排"
+    },
+    {
+      "type": "data_table",
+      "headers": ["阶段", "时间", "内容", "形式"],
+      "rows": [
+        ["Week 1 · 基础筑底", "2026.07.07 — 07.11", "粒子系统 + 特效材质入门", "线下集训·深圳"],
+        ["Week 2 · 技能特效", "2026.07.14 — 07.18", "技能设计拆解 + 引擎落地实战", "线下集训·深圳"],
+        ["Week 3 · 环境与性能", "2026.07.21 — 07.25", "场景特效 + 移动端性能专项", "线下集训·深圳"],
+        ["Week 4 · 项目实战", "2026.07.28 — 08.01", "小组完整特效模块交付 + 评审", "汇报答辩"]
+      ]
+    },
+    {
+      "type": "section_title_bar",
+      "style": "neon",
+      "index": 3,
+      "text": "讲师团队"
+    },
+    {
+      "type": "faculty_grid",
+      "layout": "detail",
+      "avatar_shape": "circle",
+      "members": [
+        {
+          "name": "陈烽",
+          "title": "IEG 特效主美 · 10 年游戏特效经验",
+          "bio": "主导多款亿级 DAU 产品的特效体系建设，擅长 UE5 Niagara 与移动端高性能特效方案，现任 IEG 新人特效培训首席导师。"
+        },
+        {
+          "name": "王璐",
+          "title": "高级技术美术 · TA 特效专项",
+          "bio": "深耕 Shader 与粒子材质研发，主导 IEG 特效规范体系制定，负责多个跨平台项目的特效性能优化与工具链建设。"
+        }
+      ]
+    },
+    {
+      "type": "section_title_bar",
+      "style": "neon",
+      "index": 4,
+      "text": "注意事项"
+    },
+    {
+      "type": "notice_box",
+      "inline": true,
+      "accent_color": "#F97316",
+      "bullets": [
+        "全程脱产集训，Week 1–3 每日 10:00–18:00，请提前协调所在项目组",
+        "请自备主力创作电脑，工作室提供高配工位显示器及外设",
+        "课程中涉及内部项目素材，成果作品不得外传"
+      ]
+    },
+    {
+      "type": "section_title_bar",
+      "style": "neon",
+      "index": 5,
+      "text": "报名方式"
+    },
+    {
+      "type": "cta_button",
+      "text": "立即报名",
+      "pre_lines": ["截止时间：2026 年 6 月 30 日（周二）24:00", "招募名额：限 40 人 · 特效方向新员工优先"],
+      "post_lines": ["训练地点：IEG 总部 · 腾讯大学 · 深圳"]
+    },
+    {
+      "type": "contact_inline",
+      "text": "如有任何疑问请联系企业大学 dorrainzeng（曾子河）。"
+    },
+    {
+      "type": "footer_logobar",
+      "logos": []
+    }
+  ],
+  "decorations": {
+    "density": "none"
+  }
+}
