@@ -1,0 +1,13 @@
+services:
+  - type: web
+    name: ieg-workbench-web
+    env: python
+    plan: free
+    buildCommand: pip install -r poster-web/requirements-deploy.txt
+    startCommand: cd poster-web && HOST=0.0.0.0 python serve.py --no-browser
+    healthCheckPath: /healthz
+    envVars:
+      - key: PYTHON_VERSION
+        value: 3.11.9
+      - key: POSTER_WEB_DATA_DIR
+        value: /tmp/ieg-workbench-data
